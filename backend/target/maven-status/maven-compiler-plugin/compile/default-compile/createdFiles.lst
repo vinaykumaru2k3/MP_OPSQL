@@ -1,0 +1,14 @@
+com\migrationplayground\service\SchemaService.class
+com\migrationplayground\controller\MigrationController.class
+com\migrationplayground\MigrationPlaygroundApplication.class
+com\migrationplayground\exception\ApiErrorResponse$Builder.class
+com\migrationplayground\model\Column.class
+com\migrationplayground\repository\MigrationRunRepository.class
+com\migrationplayground\model\Column$Builder.class
+com\migrationplayground\parser\SqlParser.class
+com\migrationplayground\exception\GlobalExceptionHandler.class
+com\migrationplayground\exception\ApiErrorResponse.class
+com\migrationplayground\model\Table.class
+com\migrationplayground\model\Constraint.class
+com\migrationplayground\model\ParsedSchema.class
+com\migrationplayground\model\MigrationRun.class
