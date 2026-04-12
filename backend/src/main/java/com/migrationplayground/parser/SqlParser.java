@@ -1,3 +1,4 @@
+
 package com.migrationplayground.parser;
 
 import com.migrationplayground.model.Column;
