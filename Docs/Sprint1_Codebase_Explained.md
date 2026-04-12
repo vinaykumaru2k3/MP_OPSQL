@@ -20,6 +20,7 @@
 11. [The Test Suite — SqlParserTest.java](#11-test-suite)
 12. [Empty Packages: What They're Reserved For](#12-empty-packages)
 13. [How Everything Connects (Dependency Map)](#13-dependency-map)
+14. [The Postman Collection — MigrationPlayground.postman_collection.json](#14-postman-collection)
 
 ---
 
@@ -687,4 +688,146 @@ HTTP Request ──────►│  │  MigrationController│              
 
 ---
 
-> **Sprint 1 is complete.** The parser engine is proven by 11 passing JUnit tests. The REST endpoint is wired end-to-end. The database persistence layer is live. Sprint 2 will add the `CompatibilityAnalyzer` on top of the `ParsedSchema` produced by this parser.
+## 14. The Postman Collection
+
+**File:** `MigrationPlayground.postman_collection.json` (repo root)
+
+### What is a Postman Collection?
+
+A Postman collection is a **JSON file that describes your API endpoints** — the URL, HTTP method, headers, request body, and example responses for each call. It is not just documentation; it is **executable documentation**. Anyone on the team imports it into Postman (or a compatible tool like Insomnia) and instantly has every API call ready to fire against a running server.
+
+You do **not** need to install Postman to commit or maintain the `.json` file itself — it is plain JSON. But to actually run the requests interactively, you (or a teammate) needs Postman installed.
+
+### How to Import and Use
+
+1. Install [Postman](https://www.postman.com/downloads/) (free desktop app)
+2. Open Postman → click **Import** (top left)
+3. Select `MigrationPlayground.postman_collection.json` from the repo root
+4. The collection appears in your left sidebar under **"Migration Playground — Sprint 1"**
+5. Start the backend (`mvn spring-boot:run` inside `/backend`)
+6. Run any request — the `{{base_url}}` variable defaults to `http://localhost:8080`
+
+> **Tip:** To change the base URL (e.g. for a staging server), click the collection → **Variables** tab → update `base_url`.
+
+---
+
+### The Four Test Cases (API-01 to API-04)
+
+All four target the same endpoint: `POST /api/v1/migrations/upload`
+
+#### API-01 — Happy Path (Upload valid `.sql` file)
+
+| Field | Value |
+|---|---|
+| Method | `POST` |
+| URL | `{{base_url}}/api/v1/migrations/upload` |
+| Body | `form-data`: key=`file`, value=any `.sql` file |
+| Expected status | `201 Created` |
+
+This is the core success scenario. You attach `sql/samples/sample_01_basic_ddl.sql` as the `file` field. The backend parses all `CREATE TABLE` blocks, counts tables and columns, saves a `MigrationRun` to PostgreSQL, and returns it as JSON.
+
+**Example response:**
+```json
+{
+  "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+  "fileName": "sample_01_basic_ddl.sql",
+  "status": "PARSED",
+  "tableCount": 3,
+  "columnCount": 12,
+  "createdAt": "2026-04-12T11:47:00Z"
+}
+```
+
+---
+
+#### API-02 — Custom `file_name` Override
+
+| Field | Value |
+|---|---|
+| Method | `POST` |
+| URL | `{{base_url}}/api/v1/migrations/upload?file_name=my_custom_name.sql` |
+| Body | `form-data`: key=`file`, value=any `.sql` file |
+| Expected status | `201 Created` |
+
+The optional `file_name` query parameter overrides the name stored in the `MigrationRun` record. Without it, the original file name is used. This is useful when the client renames the file before uploading, or when calling the API programmatically from a pipeline.
+
+**What to check:** The `fileName` field in the response should be `my_custom_name.sql`, not the original file name.
+
+---
+
+#### API-03 — Non-`.sql` File → 400 Bad Request
+
+| Field | Value |
+|---|---|
+| Method | `POST` |
+| URL | `{{base_url}}/api/v1/migrations/upload` |
+| Body | `form-data`: key=`file`, value=any non-`.sql` file (e.g. `README.md`) |
+| Expected status | `400 Bad Request` |
+
+`SchemaService` checks the file extension **before** any parsing happens. If the extension is not `.sql` (case-insensitive), it throws an `IllegalArgumentException`. The `GlobalExceptionHandler` catches it and returns a structured 400 response.
+
+**Example error response:**
+```json
+{
+  "timestamp": "2026-04-12T11:49:00Z",
+  "status": 400,
+  "error": "BAD_REQUEST",
+  "message": "Uploaded file is not a valid SQL file.",
+  "path": "/api/v1/migrations/upload"
+}
+```
+
+**Why this matters:** Without this guard, someone could upload a binary file (e.g. a `.exe`) and the regex parser would either silently produce zero tables or blow up with a confusing error. The explicit extension check gives a clean, user-friendly error instead.
+
+---
+
+#### API-04 — File Exceeds 10MB → 413 Payload Too Large
+
+| Field | Value |
+|---|---|
+| Method | `POST` |
+| URL | `{{base_url}}/api/v1/migrations/upload` |
+| Body | `form-data`: key=`file`, value=any file larger than 10MB |
+| Expected status | `413 Payload Too Large` |
+
+The `application.properties` sets:
+```properties
+spring.servlet.multipart.max-file-size=10MB
+spring.servlet.multipart.max-request-size=10MB
+```
+
+When either limit is breached, Spring Boot throws `MaxUploadSizeExceededException` **before the request even reaches the controller**. The `GlobalExceptionHandler` has a dedicated handler for this exception:
+
+```java
+@ExceptionHandler(MaxUploadSizeExceededException.class)
+public ResponseEntity<ApiErrorResponse> handleMaxSizeException(...) {
+    return buildErrorResponse(HttpStatus.PAYLOAD_TOO_LARGE, "PAYLOAD_TOO_LARGE",
+            "File size exceeds the 10MB limit.", request.getRequestURI());
+}
+```
+
+**Example error response:**
+```json
+{
+  "timestamp": "2026-04-12T11:50:00Z",
+  "status": 413,
+  "error": "PAYLOAD_TOO_LARGE",
+  "message": "File size exceeds the 10MB limit.",
+  "path": "/api/v1/migrations/upload"
+}
+```
+
+**Why `max-request-size` also needs to be set:** The request size includes all `multipart/form-data` overhead (headers, boundaries, etc.) in addition to the raw file bytes. If only `max-file-size` is set, a slightly-over-limit file might slip through on the total request size. Both must match.
+
+---
+
+### Why Keep This File in Version Control?
+
+- **Shared test harness** — every dev gets the same API calls without rebuilding them manually
+- **Living documentation** — the collection evolves with the API across sprints
+- **CI/CD integration** — the collection can be run headlessly using [Newman](https://github.com/postmanlabs/newman) (`npx newman run MigrationPlayground.postman_collection.json`) as part of a pipeline
+- **Onboarding** — a new team member has a working API explorer in under 2 minutes
+
+---
+
+> **Sprint 1 is complete.** The parser engine is proven by 11 passing JUnit tests. The REST endpoint is wired end-to-end. The database persistence layer is live. The Postman collection documents and demonstrates all four upload scenarios. Sprint 2 will add the `CompatibilityAnalyzer` on top of the `ParsedSchema` produced by this parser.
