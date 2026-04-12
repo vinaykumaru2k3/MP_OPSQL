@@ -1,0 +1,171 @@
+{
+  "info": {
+    "_postman_id": "mp-opsql-sprint1-collection",
+    "name": "Migration Playground — Sprint 1",
+    "description": "API test collection for the Oracle → PostgreSQL Migration Playground backend.\n\nCovers the Sprint 1 upload endpoint (API-01 to API-04).\n\nBase URL: http://localhost:8080\n\nImport this file into Postman (File → Import) to instantly have all requests ready to run.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8080",
+      "type": "string",
+      "description": "Base URL of the running Spring Boot backend. Change this if your server runs on a different port."
+    }
+  ],
+  "item": [
+    {
+      "name": "Sprint 1 — Upload Endpoint",
+      "description": "All four test cases for POST /api/v1/migrations/upload",
+      "item": [
+        {
+          "name": "API-01 | Upload valid .sql file (happy path)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "upload"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "sql/samples/sample_01_basic_ddl.sql",
+                  "description": "A valid Oracle DDL .sql file. Use the sample from sql/samples/ in this repo."
+                }
+              ]
+            },
+            "description": "**API-01 — Happy Path**\n\nUploads a valid Oracle DDL `.sql` file. The backend parses every `CREATE TABLE` block, counts tables and columns, persists a `MigrationRun` record to PostgreSQL, and returns it.\n\n**Expected response:** `201 Created`\n```json\n{\n  \"id\": \"<uuid>\",\n  \"fileName\": \"sample_01_basic_ddl.sql\",\n  \"status\": \"PARSED\",\n  \"tableCount\": <n>,\n  \"columnCount\": <n>,\n  \"createdAt\": \"<iso-timestamp>\"\n}\n```"
+          },
+          "response": [
+            {
+              "name": "201 Created — Successful parse",
+              "status": "Created",
+              "code": 201,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"fileName\": \"sample_01_basic_ddl.sql\",\n  \"status\": \"PARSED\",\n  \"tableCount\": 3,\n  \"columnCount\": 12,\n  \"createdAt\": \"2026-04-12T11:47:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "API-02 | Upload with custom file_name override",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/upload?file_name=my_custom_name.sql",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "upload"],
+              "query": [
+                {
+                  "key": "file_name",
+                  "value": "my_custom_name.sql",
+                  "description": "Optional. Overrides the original file name stored in the MigrationRun record."
+                }
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "sql/samples/sample_01_basic_ddl.sql",
+                  "description": "Any valid .sql file."
+                }
+              ]
+            },
+            "description": "**API-02 — Custom file_name override**\n\nSame as API-01 but supplies the optional `file_name` query parameter. The `MigrationRun` record stored in the DB will use `my_custom_name.sql` instead of the original file name.\n\nThis is useful when the client renames the file before uploading, or when sending the file programmatically.\n\n**Expected response:** `201 Created` with `fileName` = `my_custom_name.sql`"
+          },
+          "response": [
+            {
+              "name": "201 Created — Custom fileName stored",
+              "status": "Created",
+              "code": 201,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"fileName\": \"my_custom_name.sql\",\n  \"status\": \"PARSED\",\n  \"tableCount\": 3,\n  \"columnCount\": 12,\n  \"createdAt\": \"2026-04-12T11:48:00Z\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "API-03 | Upload non-.sql file → 400 Bad Request",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "upload"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "README.md",
+                  "description": "A non-.sql file (e.g. a .md, .txt, or .csv). The backend must reject this."
+                }
+              ]
+            },
+            "description": "**API-03 — Invalid file type**\n\nUploads a file that does not have a `.sql` extension. The `SchemaService` guard rejects it immediately before any parsing occurs.\n\n**Expected response:** `400 Bad Request`\n```json\n{\n  \"timestamp\": \"<iso-timestamp>\",\n  \"status\": 400,\n  \"error\": \"BAD_REQUEST\",\n  \"message\": \"Uploaded file is not a valid SQL file.\",\n  \"path\": \"/api/v1/migrations/upload\"\n}\n```"
+          },
+          "response": [
+            {
+              "name": "400 Bad Request — Invalid file extension",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"timestamp\": \"2026-04-12T11:49:00Z\",\n  \"status\": 400,\n  \"error\": \"BAD_REQUEST\",\n  \"message\": \"Uploaded file is not a valid SQL file.\",\n  \"path\": \"/api/v1/migrations/upload\"\n}"
+            }
+          ]
+        },
+        {
+          "name": "API-04 | Upload oversized file → 413 Payload Too Large",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/upload",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "upload"]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "file",
+                  "type": "file",
+                  "src": "",
+                  "description": "Attach any file larger than 10MB. The Spring Boot multipart limit will reject it before it reaches the controller."
+                }
+              ]
+            },
+            "description": "**API-04 — File exceeds 10MB limit**\n\nThe `application.properties` sets `spring.servlet.multipart.max-file-size=10MB`. When this is exceeded, Spring Boot throws `MaxUploadSizeExceededException` before the request even reaches the controller. The `GlobalExceptionHandler` catches it and returns a structured 413 response.\n\n**Expected response:** `413 Payload Too Large`\n```json\n{\n  \"timestamp\": \"<iso-timestamp>\",\n  \"status\": 413,\n  \"error\": \"PAYLOAD_TOO_LARGE\",\n  \"message\": \"File size exceeds the 10MB limit.\",\n  \"path\": \"/api/v1/migrations/upload\"\n}\n```"
+          },
+          "response": [
+            {
+              "name": "413 Payload Too Large — File exceeds 10MB",
+              "status": "Payload Too Large",
+              "code": 413,
+              "header": [
+                { "key": "Content-Type", "value": "application/json" }
+              ],
+              "body": "{\n  \"timestamp\": \"2026-04-12T11:50:00Z\",\n  \"status\": 413,\n  \"error\": \"PAYLOAD_TOO_LARGE\",\n  \"message\": \"File size exceeds the 10MB limit.\",\n  \"path\": \"/api/v1/migrations/upload\"\n}"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
