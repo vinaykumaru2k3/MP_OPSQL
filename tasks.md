@@ -14,14 +14,14 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Provide sample Oracle SQL files for tests `sql/samples/sample_01_basic_ddl.sql`
   - [x] Create `docker-compose.yml` for local PostgreSQL database instance
 
-- [ ] **Sprint 2: Compatibility Analyzer**
-  - [ ] Create `AnalysisReport` model and DTO
-  - [ ] Implement `CompatibilityAnalyzer.java` with the full conversion rules map (Data Types, Functions, Subqueries, PL/SQL)
-  - [ ] Ensure HIGH, MEDIUM, LOW severity tracking is correctly applied
-  - [ ] Write `CompatibilityAnalyzerTest.java` (Cases A-01 to A-15)
-  - [ ] Implement `POST /api/v1/migrations/{id}/analyze`
-  - [ ] Implement `GET /api/v1/migrations/{id}/analysis`
-  - [ ] Add analyzer endpoints to Postman collection
+- [x] **Sprint 2: Compatibility Analyzer** ✅ _Completed_
+  - [x] Create `AnalysisReport` model and DTO
+  - [x] Implement `CompatibilityAnalyzer.java` with the full conversion rules map (Data Types, Functions, Subqueries, PL/SQL)
+  - [x] Ensure HIGH, MEDIUM, LOW severity tracking is correctly applied
+  - [x] Write `CompatibilityAnalyzerTest.java` (Cases A-01 to A-15)
+  - [x] Implement `POST /api/v1/migrations/{id}/analyze`
+  - [x] Implement `GET /api/v1/migrations/{id}/analysis`
+  - [x] Add analyzer endpoints to Postman collection
 
 - [ ] **Sprint 3: Conversion Engine**
   - [ ] Create `ConvertedScript` model and DTO
@@ -36,6 +36,7 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [ ] Add Flyway dependency and script `V1__initial_schema.sql` through `V5`
   - [ ] Integrate Repositories: `MigrationRunRepository`, `AnalysisReportRepository`, `ConvertedScriptRepository`
   - [ ] Refactor Services to securely persist outputs in PostgreSQL
+  - [ ] **Technical Debt:** Remove the temporary in-memory SQL cache from `SchemaService` (added in Sprint 2) and persist raw files to PostgreSQL/File System
   - [ ] Initialize React frontend in `/frontend` directory (`npx create-react-app` or Vite)
   - [ ] Set up frontend `.env.local` to point to `REACT_APP_API_BASE_URL`
   - [ ] Build **Home & Upload UI** (react-dropzone integration)

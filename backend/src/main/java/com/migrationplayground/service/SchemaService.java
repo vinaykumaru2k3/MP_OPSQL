@@ -11,17 +11,32 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import com.migrationplayground.analyzer.CompatibilityAnalyzer;
+import com.migrationplayground.dto.AnalysisReportDto;
+import com.migrationplayground.model.AnalysisReport;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+
 @Service
 public class SchemaService {
     private static final Logger log = LoggerFactory.getLogger(SchemaService.class);
 
     private final MigrationRunRepository migrationRunRepository;
     private final SqlParser sqlParser;
+    private final CompatibilityAnalyzer compatibilityAnalyzer;
+
+    // TODO [Sprint 4 Technical Debt]: Remove these in-memory caches and persist to PostgreSQL/File System
+    private final Map<UUID, String> rawSqlCache = new ConcurrentHashMap<>();
+    private final Map<UUID, ParsedSchema> schemaCache = new ConcurrentHashMap<>();
+    private final Map<UUID, AnalysisReportDto> reportCache = new ConcurrentHashMap<>();
     
-    public SchemaService(MigrationRunRepository migrationRunRepository, SqlParser sqlParser) {
+    public SchemaService(MigrationRunRepository migrationRunRepository, SqlParser sqlParser, CompatibilityAnalyzer compatibilityAnalyzer) {
         this.migrationRunRepository = migrationRunRepository;
         this.sqlParser = sqlParser;
+        this.compatibilityAnalyzer = compatibilityAnalyzer;
     }
+
 
     public MigrationRun uploadAndParse(MultipartFile file, String fileNameOverride) {
         if (file == null || file.isEmpty()) {
@@ -52,6 +67,11 @@ public class SchemaService {
             run.setColumnCount(colCount);
                 
             run = migrationRunRepository.save(run);
+            
+            // Temporary Sprint 2 Cache
+            rawSqlCache.put(run.getId(), content);
+            schemaCache.put(run.getId(), schema);
+            
             log.info("Successfully parsed file {}. Created run ID: {}", fileName, run.getId());
             return run;
         } catch (IllegalArgumentException e) {
@@ -60,6 +80,38 @@ public class SchemaService {
             log.error("Failed to parse SQL file", e);
             throw new IllegalArgumentException("Failed to parse SQL file: " + e.getMessage());
         }
+    }
+
+    public AnalysisReportDto analyze(UUID runId) {
+        if (!rawSqlCache.containsKey(runId) || !schemaCache.containsKey(runId)) {
+            throw new IllegalArgumentException("Migration run data not found in cache for ID: " + runId);
+        }
+
+        String rawSql = rawSqlCache.get(runId);
+        ParsedSchema schema = schemaCache.get(runId);
+
+        AnalysisReport report = compatibilityAnalyzer.analyze(schema, rawSql);
+        report.setMigrationRunId(runId);
+
+        AnalysisReportDto dto = AnalysisReportDto.builder()
+                .migrationRunId(report.getMigrationRunId())
+                .highSeverityCount(report.getHighSeverityCount())
+                .mediumSeverityCount(report.getMediumSeverityCount())
+                .lowSeverityCount(report.getLowSeverityCount())
+                .issues(report.getIssues())
+                .build();
+
+        reportCache.put(runId, dto);
+        log.info("Analysis completed for run ID: {}. High: {}, Medium: {}, Low: {}", runId, dto.getHighSeverityCount(), dto.getMediumSeverityCount(), dto.getLowSeverityCount());
+        
+        return dto;
+    }
+
+    public AnalysisReportDto getAnalysis(UUID runId) {
+        if (!reportCache.containsKey(runId)) {
+            throw new IllegalArgumentException("Analysis report not found for ID: " + runId);
+        }
+        return reportCache.get(runId);
     }
 }
 

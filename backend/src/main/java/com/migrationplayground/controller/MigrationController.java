@@ -25,4 +25,16 @@ public class MigrationController {
         MigrationRun run = schemaService.uploadAndParse(file, fileName);
         return new ResponseEntity<>(run, HttpStatus.CREATED);
     }
+
+    @PostMapping("/{id}/analyze")
+    public ResponseEntity<com.migrationplayground.dto.AnalysisReportDto> runAnalysis(@PathVariable("id") java.util.UUID id) {
+        com.migrationplayground.dto.AnalysisReportDto report = schemaService.analyze(id);
+        return new ResponseEntity<>(report, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}/analysis")
+    public ResponseEntity<com.migrationplayground.dto.AnalysisReportDto> getAnalysis(@PathVariable("id") java.util.UUID id) {
+        com.migrationplayground.dto.AnalysisReportDto report = schemaService.getAnalysis(id);
+        return new ResponseEntity<>(report, HttpStatus.OK);
+    }
 }
