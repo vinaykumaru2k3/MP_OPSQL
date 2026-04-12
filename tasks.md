@@ -10,7 +10,7 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Implement `POST /api/v1/migrations/upload` to handle multipart SQL files
   - [x] Implement `SqlParser.java` using regex to extract CREATE TABLE blocks, columns, and constraints
   - [x] Write `SqlParserTest` achieving 70%+ JaCoCo coverage (Cases P-01 to P-11)
-  - [/] Initialize `MigrationPlayground.postman_collection.json` with upload endpoints API-01 to API-04 _(carry-forward → Sprint 2)_
+  - [x] Initialize `MigrationPlayground.postman_collection.json` with upload endpoints API-01 to API-04
   - [x] Provide sample Oracle SQL files for tests `sql/samples/sample_01_basic_ddl.sql`
 
 - [ ] **Sprint 2: Compatibility Analyzer**
