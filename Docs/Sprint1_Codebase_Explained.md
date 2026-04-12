@@ -821,6 +821,13 @@ public ResponseEntity<ApiErrorResponse> handleMaxSizeException(...) {
 
 ---
 
+### Why You Need This Collection Right Now
+
+Currently, the stack looks like this:
+`[Postman] ←→ [Spring Boot API @ localhost:8080] ←→ [PostgreSQL]`
+
+Because the **React Frontend won't be built until Sprint 4**, Postman is currently the only "UI" you have. Without it, you cannot manually test your endpoints, upload SQL files, or see what the backend responses look like.
+
 ### Why Keep This File in Version Control?
 
 - **Shared test harness** — every dev gets the same API calls without rebuilding them manually
