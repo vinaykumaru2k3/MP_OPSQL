@@ -2,16 +2,16 @@
 
 Follow this living breakdown of tasks aligned with the 6-week sprint plan defined in the engineering specs. Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
 
-- [ ] **Sprint 1: Project Scaffold & Parser Engine**
-  - [ ] Initialize Spring Boot backend project (Dependencies: `web`, `data-jpa`, `postgresql`, `validation`, `lombok`)
-  - [ ] Configure `application.properties` (PostgreSQL config, 10MB multipart size limits, SLF4J logging)
-  - [ ] Implement `GlobalExceptionHandler` per the standard error response schema
-  - [ ] Create domain models (`Table`, `Column`, `Constraint`, `MigrationRun`)
-  - [ ] Implement `POST /api/v1/migrations/upload` to handle multipart SQL files
-  - [ ] Implement `SqlParser.java` using regex to extract CREATE TABLE blocks, columns, and constraints
-  - [ ] Write `SqlParserTest` achieving 70%+ JaCoCo coverage (Cases P-01 to P-12)
-  - [ ] Initialize `MigrationPlayground.postman_collection.json` with upload endpoints API-01 to API-04
-  - [ ] Provide sample Oracle SQL files for tests `sql/samples/sample_01_basic_ddl.sql`
+- [x] **Sprint 1: Project Scaffold & Parser Engine** ✅ _Completed 2026-04-12_
+  - [x] Initialize Spring Boot backend project (Dependencies: `web`, `data-jpa`, `postgresql`, `validation`, `lombok`)
+  - [x] Configure `application.properties` (PostgreSQL config, 10MB multipart size limits, SLF4J logging)
+  - [x] Implement `GlobalExceptionHandler` per the standard error response schema
+  - [x] Create domain models (`Table`, `Column`, `Constraint`, `MigrationRun`)
+  - [x] Implement `POST /api/v1/migrations/upload` to handle multipart SQL files
+  - [x] Implement `SqlParser.java` using regex to extract CREATE TABLE blocks, columns, and constraints
+  - [x] Write `SqlParserTest` achieving 70%+ JaCoCo coverage (Cases P-01 to P-11)
+  - [/] Initialize `MigrationPlayground.postman_collection.json` with upload endpoints API-01 to API-04 _(carry-forward → Sprint 2)_
+  - [x] Provide sample Oracle SQL files for tests `sql/samples/sample_01_basic_ddl.sql`
 
 - [ ] **Sprint 2: Compatibility Analyzer**
   - [ ] Create `AnalysisReport` model and DTO
