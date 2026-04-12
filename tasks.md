@@ -12,6 +12,7 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Write `SqlParserTest` achieving 70%+ JaCoCo coverage (Cases P-01 to P-11)
   - [x] Initialize `MigrationPlayground.postman_collection.json` with upload endpoints API-01 to API-04
   - [x] Provide sample Oracle SQL files for tests `sql/samples/sample_01_basic_ddl.sql`
+  - [x] Create `docker-compose.yml` for local PostgreSQL database instance
 
 - [ ] **Sprint 2: Compatibility Analyzer**
   - [ ] Create `AnalysisReport` model and DTO

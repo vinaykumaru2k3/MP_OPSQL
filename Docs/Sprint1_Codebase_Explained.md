@@ -200,6 +200,33 @@ logging.file.name=logs/migration-tool.log
 
 ---
 
+### `docker-compose.yml`
+
+```yaml
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: migration_postgres
+    environment:
+      POSTGRES_USER: migration_user
+      POSTGRES_PASSWORD: migration_pass
+      POSTGRES_DB: migration_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+```
+
+This file is required to actually run the database that the Sprint 1 application expects. It spins up a lightweight PostgreSQL 15 container exposing port 5432 to your local machine, and pre-creates the `migration_db` with the `migration_user` so the Spring Boot application can connect immediately upon startup without manual Database administration.
+
+---
+
 ### `MigrationPlaygroundApplication.java`
 
 ```java

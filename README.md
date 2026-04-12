@@ -173,36 +173,15 @@ git --version    # git version 2.x.x
 
 ### 1. PostgreSQL Setup
 
-Start the PostgreSQL service:
+The easiest way to start the required PostgreSQL instance is using Docker. A `docker-compose.yml` is provided in the root directory.
 
 ```bash
-# macOS (Homebrew)
-brew services start postgresql@15
-
-# Ubuntu / Debian
-sudo systemctl start postgresql
+docker-compose up -d
 ```
+This automatically spins up a PostgreSQL 15 container on port 5432 with the exact credentials expected by the backend (`migration_user` / `migration_pass` / `migration_db`).
 
-Create the database and user:
+*(Alternatively, if you prefer a local installation without Docker, you can install PostgreSQL manually and create the database/user matching those credentials).*
 
-```sql
-psql -U postgres
-
-CREATE DATABASE migration_db;
-CREATE USER migration_user WITH ENCRYPTED PASSWORD 'migration_pass';
-GRANT ALL PRIVILEGES ON DATABASE migration_db TO migration_user;
-\q
-```
-
-Apply the schema:
-
-```bash
-psql -U migration_user -d migration_db -f sql/schema.sql
-
-# Verify tables:
-psql -U migration_user -d migration_db -c "\dt"
-# Expected: migration_runs, analysis_reports, converted_scripts, validation_results
-```
 
 ### 2. Backend Setup
 
@@ -249,22 +228,19 @@ npm start
 # Opens at http://localhost:3000
 ```
 
-### 4. Docker (Optional)
+### 4. Docker (Database & Emulation)
 
-A `docker-compose.yml` is provided to run PostgreSQL locally and optionally Oracle XE for validation testing.
+The `docker-compose.yml` provides the main PostgreSQL database for the backend. 
+
+In Sprint 5, we will add the Oracle XE container (`gvenzl/oracle-xe:21-slim`) to this file for live validation testing. Until then, it purely provides the PostgreSQL instance.
 
 ```bash
-# Start all services
+# Start the database
 docker-compose up -d
 
-# Check status
-docker-compose ps
-
-# Stop all services
+# Stop the database
 docker-compose down
 ```
-
-The Oracle XE container (`gvenzl/oracle-xe:21-slim`) is only required during Sprint 5 validation testing. Skip it until then.
 
 ---
 
