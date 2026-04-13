@@ -41,7 +41,7 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Initialize React frontend in `/frontend` directory (using Vite + TypeScript)
   - [x] Set up frontend routing, Axios API service, and types
   - [x] Build **Home & Upload UI** (Base scaffold with routing)
-  - [ ] Build **Analysis Dashboard UI** (Metrics and severity grouped charts using `recharts`) - *Next Step*
+  - [x] Build **Analysis Dashboard UI** (Metrics and severity grouped charts using `recharts`)
 
 - [ ] **Sprint 5: Validation Engine**
   - [ ] Create `ValidationResult` domain model and Repository
