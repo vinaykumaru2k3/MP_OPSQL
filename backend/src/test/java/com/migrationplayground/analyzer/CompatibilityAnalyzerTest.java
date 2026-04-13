@@ -156,4 +156,20 @@ class CompatibilityAnalyzerTest {
         assertTrue(report.getIssues().stream().anyMatch(i -> i.getConstruct().equals("PRAGMA")));
         assertTrue(report.getIssues().stream().anyMatch(i -> i.getConstruct().equals("FORALL")));
     }
+
+    @Test
+    void testA16_StringLiteralIsolation() {
+        // This test case contains Oracle keywords/functions INSIDE string literals.
+        // They should NOT be flagged by the analyzer.
+        String sql = "INSERT INTO logs (msg) VALUES ('User tried to use NVL function');\n" +
+                     "INSERT INTO logs (msg) VALUES ('Old style join (+) is bad');\n" +
+                     "INSERT INTO logs (msg) VALUES ('SYSDATE is also a keyword');\n" +
+                     "INSERT INTO logs (msg) VALUES ('Escaped single quote ''NVL'' should be ignored');";
+        
+        AnalysisReport report = analyzer.analyze(createEmptySchema(), sql);
+        
+        // If the fix is NOT implemented, this will likely have several issues.
+        // We want 0 issues from the strings.
+        assertEquals(0, report.getIssues().size(), "Should not flag keywords inside string literals");
+    }
 }

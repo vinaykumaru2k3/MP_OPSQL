@@ -94,7 +94,18 @@ if (type.equals("DATE")) {
 *Because the parser already resolved columns gracefully, we don't need messy regex to find datatypes. We just read the java strings.*
 
 ### Strategy 2: Raw SQL Regex Matching
-For functions, pagination, and structural logic, the system strips out comments (`--` and `/* */`) to avoid false positives, converts the raw SQL to uppercase, and runs strict Word-Boundaried Regexes:
+For functions, pagination, and structural logic, the system strips out comments (`--` and `/* */`) AND **string literals** (`'...'`) to avoid false positives. It then converts the raw SQL to uppercase and runs strict Word-Boundaried Regexes:
+
+```java
+// Masking String Literals perfectly (handles escaped quotes '')
+String cleanSql = rawSql.replaceAll("(?s)/\\*.*?\\*/", "")
+                        .replaceAll("--.*", "")
+                        .replaceAll("'(?:[^']|'')*'", "''");
+```
+
+*This "String Literal Masking" ensures that if a user has a string like `'User tried to use NVL'`, the word `NVL` is NOT falsely flagged as an Oracle incompatibility.*
+
+### Strategy 3: Specific Regex Rules
 
 ```java
 // Matches exactly the word ROWNUM, but not part of 'GROWNUM'

@@ -79,6 +79,12 @@ Represents the final output of the conversion process.
 
 This component is a stateless `@Component` that uses a multi-pass approach to transform SQL strings. It relies heavily on regular expressions to ensure accurate replacements with word boundaries and case-insensitivity.
 
+### Phase 0: String Literal Masking (The "Enterprise Fix")
+Before any conversion rules are applied, the engine scans the raw SQL for string literals (`'...'`). It removes them from the SQL and replaces them with unique placeholders (`___STR_LITERAL_0___`).
+
+*   **Why?**: Without this, if an `INSERT` statement contains the word `'NVL'`, a blind search-and-replace would turn it into `'COALESCE'`, corrupting the actual data.
+*   **Restoration**: After all conversion phases are complete, the engine swaps the placeholders back for the original strings.
+
 ### Phase 1: Data Type Conversions
 The engine maps Oracle-specific types to their closest PostgreSQL equivalents.
 - `VARCHAR2` / `NVARCHAR2` → `VARCHAR`

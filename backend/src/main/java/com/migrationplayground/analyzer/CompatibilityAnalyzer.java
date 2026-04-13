@@ -71,9 +71,10 @@ public class CompatibilityAnalyzer {
     }
 
     private void analyzeRawSql(String rawSql, List<AnalysisIssue> issues) {
-        // Strip out single-line and multi-line comments to avoid false positives
-        String cleanSql = rawSql.replaceAll("(?s)/\\*.*?\\*/", "")
-                                .replaceAll("--.*", "");
+        // Strip out single-line and multi-line comments AND string literals to avoid false positives
+        String cleanSql = rawSql.replaceAll("(?s)/\\*.*?\\*/", "")         // Strip Block Comments
+                                .replaceAll("--.*", "")                      // Strip Line Comments
+                                .replaceAll("'(?:[^']|'')*'", "''");         // Strip String Literals perfectly!
         String upperSql = cleanSql.toUpperCase();
 
         // Functions and Expressions

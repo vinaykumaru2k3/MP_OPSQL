@@ -144,4 +144,25 @@ class SqlConverterTest {
         assertTrue(result.contains("TIMESTAMP DEFAULT CURRENT_TIMESTAMP"));
         assertTrue(result.contains("NEXTVAL('emp_seq')"));
     }
+
+    @Test
+    void testCV16_StringLiteralIntegrity() {
+        // This test case contains Oracle keywords/functions INSIDE string literals.
+        // They should NOT be converted.
+        String sql = "INSERT INTO logs (msg) VALUES ('Developer used the NVL function improperly');";
+        String result = converter.convert(sql);
+        
+        // If the fix is NOT implemented, NVL will become COALESCE.
+        // We want it to stay as 'NVL'.
+        assertTrue(result.contains("'Developer used the NVL function improperly'"), 
+                  "String literal should remain unchanged: " + result);
+        assertFalse(result.contains("COALESCE"), "COALESCE should NOT appear inside the string literal");
+        
+        // Another case with multiple strings and keywords
+        String sql2 = "SELECT 'NVL' as type, SYSDATE, 'SYSDATE is today' FROM dual;";
+        String result2 = converter.convert(sql2);
+        assertTrue(result2.contains("'NVL'"), "NVL inside string should remain unchanged");
+        assertTrue(result2.contains("'SYSDATE is today'"), "SYSDATE inside string should remain unchanged");
+        assertTrue(result2.contains("CURRENT_TIMESTAMP"), "SYSDATE outside string SHOULD be converted");
+    }
 }

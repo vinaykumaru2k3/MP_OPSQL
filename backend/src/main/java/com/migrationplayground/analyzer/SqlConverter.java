@@ -1,7 +1,8 @@
 package com.migrationplayground.analyzer;
 
 import org.springframework.stereotype.Component;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -13,7 +14,12 @@ public class SqlConverter {
             return oracleSql;
         }
 
-        String converted = oracleSql;
+        // Mask String Literals to protect data during conversion
+        List<String> literals = new ArrayList<>();
+        String maskedSql = maskStringLiterals(oracleSql, literals);
+
+        // Perform conversions on masked SQL
+        String converted = maskedSql;
 
         // 1. Data Type Conversions
         converted = convertDataTypes(converted);
@@ -27,7 +33,31 @@ public class SqlConverter {
         // 4. Flag HIGH severity constructs with manual review comments
         converted = flagHighSeverityConstructs(converted);
 
-        return converted;
+        // Restore String Literals
+        return unmaskStringLiterals(converted, literals);
+    }
+
+    private String maskStringLiterals(String sql, List<String> literals) {
+        Pattern p = Pattern.compile("'(?:[^']|'')*'");
+        Matcher m = p.matcher(sql);
+        StringBuilder sb = new StringBuilder();
+        int lastIndex = 0;
+        while (m.find()) {
+            sb.append(sql, lastIndex, m.start());
+            sb.append("___STR_LITERAL_").append(literals.size()).append("___");
+            literals.add(m.group());
+            lastIndex = m.end();
+        }
+        sb.append(sql.substring(lastIndex));
+        return sb.toString();
+    }
+
+    private String unmaskStringLiterals(String sql, List<String> literals) {
+        String result = sql;
+        for (int i = 0; i < literals.size(); i++) {
+            result = result.replace("___STR_LITERAL_" + i + "___", literals.get(i));
+        }
+        return result;
     }
 
     private String convertDataTypes(String sql) {
