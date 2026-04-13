@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { MigrationRun, AnalysisReport, ConvertedScript } from '../types';
+import type { MigrationRun, AnalysisReport, ConvertedScript } from '../types';
 
 const API_BASE_URL = '/api/v1/migrations';
 
