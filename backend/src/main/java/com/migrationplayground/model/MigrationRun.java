@@ -6,6 +6,11 @@ import java.util.UUID;
 
 @jakarta.persistence.Entity
 @jakarta.persistence.Table(name = "migration_runs")
+@lombok.Getter
+@lombok.Setter
+@lombok.NoArgsConstructor
+@lombok.AllArgsConstructor
+@lombok.Builder
 public class MigrationRun {
     
     @jakarta.persistence.Id
@@ -27,6 +32,9 @@ public class MigrationRun {
     @jakarta.persistence.Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
     
+    @jakarta.persistence.Column(name = "raw_sql", columnDefinition = "TEXT")
+    private String rawSql;
+    
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
@@ -36,17 +44,4 @@ public class MigrationRun {
             status = "PENDING";
         }
     }
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-    public String getFileName() { return fileName; }
-    public void setFileName(String fileName) { this.fileName = fileName; }
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-    public Integer getTableCount() { return tableCount; }
-    public void setTableCount(Integer tableCount) { this.tableCount = tableCount; }
-    public Integer getColumnCount() { return columnCount; }
-    public void setColumnCount(Integer columnCount) { this.columnCount = columnCount; }
-    public Instant getCreatedAt() { return createdAt; }
-    public void setCreatedAt(Instant createdAt) { this.createdAt = createdAt; }
 }
