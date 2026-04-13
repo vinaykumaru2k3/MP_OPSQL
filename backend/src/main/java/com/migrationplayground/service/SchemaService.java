@@ -12,8 +12,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import com.migrationplayground.analyzer.CompatibilityAnalyzer;
+import com.migrationplayground.analyzer.SqlConverter;
 import com.migrationplayground.dto.AnalysisReportDto;
+import com.migrationplayground.dto.ConvertedScriptDto;
 import com.migrationplayground.model.AnalysisReport;
+import com.migrationplayground.model.ConvertedScript;
+import com.migrationplayground.model.ParsedSchema;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
@@ -25,16 +29,20 @@ public class SchemaService {
     private final MigrationRunRepository migrationRunRepository;
     private final SqlParser sqlParser;
     private final CompatibilityAnalyzer compatibilityAnalyzer;
+    private final SqlConverter sqlConverter;
 
     // TODO [Sprint 4 Technical Debt]: Remove these in-memory caches and persist to PostgreSQL/File System
     private final Map<UUID, String> rawSqlCache = new ConcurrentHashMap<>();
     private final Map<UUID, ParsedSchema> schemaCache = new ConcurrentHashMap<>();
     private final Map<UUID, AnalysisReportDto> reportCache = new ConcurrentHashMap<>();
+    private final Map<UUID, ConvertedScriptDto> conversionCache = new ConcurrentHashMap<>();
     
-    public SchemaService(MigrationRunRepository migrationRunRepository, SqlParser sqlParser, CompatibilityAnalyzer compatibilityAnalyzer) {
+    public SchemaService(MigrationRunRepository migrationRunRepository, SqlParser sqlParser, 
+                        CompatibilityAnalyzer compatibilityAnalyzer, SqlConverter sqlConverter) {
         this.migrationRunRepository = migrationRunRepository;
         this.sqlParser = sqlParser;
         this.compatibilityAnalyzer = compatibilityAnalyzer;
+        this.sqlConverter = sqlConverter;
     }
 
 
@@ -112,6 +120,32 @@ public class SchemaService {
             throw new IllegalArgumentException("Analysis report not found for ID: " + runId);
         }
         return reportCache.get(runId);
+    }
+
+    public ConvertedScriptDto convert(UUID runId) {
+        if (!rawSqlCache.containsKey(runId)) {
+            throw new IllegalArgumentException("Migration run data not found in cache for ID: " + runId);
+        }
+
+        String rawSql = rawSqlCache.get(runId);
+        String convertedSql = sqlConverter.convert(rawSql);
+
+        ConvertedScriptDto dto = ConvertedScriptDto.builder()
+                .migrationRunId(runId)
+                .convertedSql(convertedSql)
+                .build();
+
+        conversionCache.put(runId, dto);
+        log.info("Conversion completed for run ID: {}", runId);
+
+        return dto;
+    }
+
+    public ConvertedScriptDto getConvertedScript(UUID runId) {
+        if (!conversionCache.containsKey(runId)) {
+            throw new IllegalArgumentException("Converted script not found for ID: " + runId);
+        }
+        return conversionCache.get(runId);
     }
 }
 

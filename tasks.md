@@ -23,14 +23,14 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Implement `GET /api/v1/migrations/{id}/analysis`
   - [x] Add analyzer endpoints to Postman collection
 
-- [ ] **Sprint 3: Conversion Engine**
-  - [ ] Create `ConvertedScript` model and DTO
-  - [ ] Implement `SqlConverter.java` for string replacements and context-aware transformations (`NVL` -> `COALESCE`, `ROWNUM` -> `LIMIT`)
-  - [ ] Prevent auto-conversion on HIGH-severity unimplemented constructs (add manual review comments instead)
-  - [ ] Write `SqlConverterTest` (Cases CV-01 to CV-15)
-  - [ ] Implement `POST /api/v1/migrations/{id}/convert` endpoint
-  - [ ] Implement `GET /api/v1/migrations/{id}/converted-script` (returns `text/plain` SQL)
-  - [ ] Add conversion endpoints to Postman collection
+- [x] **Sprint 3: Conversion Engine** ✅ _Completed 2026-04-13_
+  - [x] Create `ConvertedScript` model and DTO
+  - [x] Implement `SqlConverter.java` for string replacements and context-aware transformations (`NVL` -> `COALESCE`, `ROWNUM` -> `LIMIT`)
+  - [x] Prevent auto-conversion on HIGH-severity unimplemented constructs (add manual review comments instead)
+  - [x] Write `SqlConverterTest` (Cases CV-01 to CV-15)
+  - [x] Implement `POST /api/v1/migrations/{id}/convert` endpoint
+  - [x] Implement `GET /api/v1/migrations/{id}/converted-script` (returns `text/plain` SQL)
+  - [x] Add conversion endpoints to Postman collection
 
 - [ ] **Sprint 4: Database Persistence & React UI Scaffold**
   - [ ] Add Flyway dependency and script `V1__initial_schema.sql` through `V5`
