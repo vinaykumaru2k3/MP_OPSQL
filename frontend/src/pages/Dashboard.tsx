@@ -7,10 +7,10 @@ import {
 import { 
   AlertTriangle, CheckCircle2, Info, 
   Download, Play, FileCode, Loader2, AlertCircle,
-  BarChart2
+  BarChart2, Search, Database, ArrowRight
 } from 'lucide-react';
 import { migrationApi } from '../api/migrationApi';
-import type { AnalysisReport, ConvertedScript } from '../types';
+import type { AnalysisReport, ConvertedScript, ValidationResult } from '../types';
 
 const Dashboard: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -18,35 +18,41 @@ const Dashboard: React.FC = () => {
 
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [script, setScript] = useState<ConvertedScript | null>(null);
+  const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'analysis' | 'script'>('analysis');
+  const [activeTab, setActiveTab] = useState<'analysis' | 'script' | 'validation'>('analysis');
   const [filter, setFilter] = useState<string>('ALL');
 
   useEffect(() => {
     if (runId) {
       fetchAnalysis(runId);
+      fetchValidation(runId);
     }
   }, [runId]);
 
   const fetchAnalysis = async (id: string) => {
-    setLoading(true);
+    // setLoading(true); // Don't set global loading if validation also fetches
     setError(null);
     try {
-      // Try to get existing analysis first
       let data;
       try {
         data = await migrationApi.getAnalysis(id);
       } catch (e) {
-        // If not found, run analysis
         data = await migrationApi.analyze(id);
       }
       setReport(data);
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Failed to load analysis report.');
       console.error(err);
-    } finally {
-      setLoading(false);
+    }
+  };
+
+  const fetchValidation = async (id: string) => {
+    try {
+      const data = await migrationApi.getValidation(id);
+      setValidation(data);
+    } catch (e) {
+      // It's fine if validation doesn't exist yet
     }
   };
 
@@ -59,6 +65,20 @@ const Dashboard: React.FC = () => {
       setActiveTab('script');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to convert script.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleValidate = async () => {
+    if (!runId) return;
+    setLoading(true);
+    try {
+      const data = await migrationApi.validate(runId);
+      setValidation(data);
+      setActiveTab('validation');
+    } catch (err: any) {
+      setError(err.response?.data?.message || 'Failed to run validation.');
     } finally {
       setLoading(false);
     }
@@ -103,9 +123,12 @@ const Dashboard: React.FC = () => {
         </div>
         <div className="flex items-center space-x-3">
           <button 
-            onClick={() => fetchAnalysis(runId)}
+            onClick={() => {
+              fetchAnalysis(runId);
+              fetchValidation(runId);
+            }}
             className="p-2 text-gray-400 hover:text-blue-600 bg-white border border-gray-200 rounded-md shadow-sm transition-colors"
-            title="Refresh Analysis"
+            title="Refresh Dashboard"
           >
             <Loader2 className={`h-5 w-5 ${loading ? 'animate-spin text-blue-600' : ''}`} />
           </button>
@@ -120,6 +143,18 @@ const Dashboard: React.FC = () => {
           >
             <Play className="h-4 w-4" />
             <span>{script ? 'Converted' : 'Run Conversion'}</span>
+          </button>
+          <button
+            onClick={handleValidate}
+            disabled={loading || !!validation}
+            className={`flex items-center space-x-2 px-4 py-2 rounded-md font-bold transition-all shadow-sm ${
+              loading || !!validation 
+                ? 'bg-gray-100 text-gray-400 cursor-not-allowed' 
+                : 'bg-blue-600 text-white hover:bg-blue-700'
+            }`}
+          >
+            <Search className="h-4 w-4" />
+            <span>{validation ? 'Validated' : 'Run Validation'}</span>
           </button>
         </div>
       </div>
@@ -222,14 +257,31 @@ const Dashboard: React.FC = () => {
               </button>
               <button
                 onClick={() => setActiveTab('script')}
+                disabled={!script}
                 className={`px-6 py-4 text-sm font-bold flex items-center space-x-2 border-b-2 transition-colors ${
                   activeTab === 'script' 
                     ? 'border-blue-600 text-blue-600 bg-blue-50/30' 
-                    : 'border-transparent text-gray-500 hover:text-gray-700'
+                    : !script 
+                      ? 'opacity-50 cursor-not-allowed text-gray-300 border-transparent'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
                 }`}
               >
                 <FileCode className="h-4 w-4" />
                 <span>PostgreSQL Script</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('validation')}
+                disabled={!validation}
+                className={`px-6 py-4 text-sm font-bold flex items-center space-x-2 border-b-2 transition-colors ${
+                  activeTab === 'validation' 
+                    ? 'border-blue-600 text-blue-600 bg-blue-50/30' 
+                    : !validation 
+                      ? 'opacity-50 cursor-not-allowed text-gray-300 border-transparent'
+                      : 'border-transparent text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <Database className="h-4 w-4" />
+                <span>Validation Metrics</span>
               </button>
             </div>
 
@@ -294,7 +346,7 @@ const Dashboard: React.FC = () => {
                     </div>
                   )}
                 </div>
-              ) : (
+              ) : activeTab === 'script' ? (
                 <div className="h-full flex flex-col">
                   {script ? (
                     <>
@@ -330,6 +382,92 @@ const Dashboard: React.FC = () => {
                         className="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 transition-colors shadow-sm"
                       >
                         Convert to PostgreSQL
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {validation ? (
+                    <>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                          <p className="text-xs text-gray-500 font-bold uppercase mb-1">Status</p>
+                          <div className="flex items-center space-x-2">
+                            {validation.validationStatus === 'PASSED' ? (
+                              <CheckCircle2 className="h-5 w-5 text-green-500" />
+                            ) : (
+                              <AlertTriangle className="h-5 w-5 text-yellow-500" />
+                            )}
+                            <span className={`font-extrabold ${
+                              validation.validationStatus === 'PASSED' ? 'text-green-700' : 'text-yellow-700'
+                            }`}>
+                              {validation.validationStatus}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                          <p className="text-xs text-gray-500 font-bold uppercase mb-1">Tables Validated</p>
+                          <p className="text-xl font-extrabold text-gray-900">{validation.tablesValidatedCount}</p>
+                        </div>
+                        <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                          <p className="text-xs text-gray-500 font-bold uppercase mb-1">Row Count Match</p>
+                          <p className="text-xl font-extrabold text-gray-900">
+                            {validation.tablesMatchedCount} / {validation.tablesValidatedCount}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="overflow-x-auto border border-gray-100 rounded-lg">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Table Name</th>
+                              <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Source (Oracle)</th>
+                              <th className="px-4 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider text-center">
+                                <ArrowRight className="h-3 w-3 inline mx-auto" />
+                              </th>
+                              <th className="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Target (Postgres)</th>
+                              <th className="px-4 py-3 text-center text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {validation.metrics.map((m, idx) => (
+                              <tr key={idx} className="hover:bg-gray-50 transition-colors">
+                                <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-gray-900 font-mono">{m.tableName}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-right text-gray-600">{m.sourceRowCount.toLocaleString()}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-center">
+                                  <ArrowRight className="h-4 w-4 text-gray-300 mx-auto" />
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{m.targetRowCount.toLocaleString()}</td>
+                                <td className="px-4 py-3 whitespace-nowrap text-center">
+                                  {m.rowCountMatch ? (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-extrabold bg-green-100 text-green-800 border border-green-200">
+                                      MATCH
+                                    </span>
+                                  ) : (
+                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-extrabold bg-red-100 text-red-800 border border-red-200">
+                                      MISMATCH
+                                    </span>
+                                  )}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-20 h-full">
+                      <Database className="h-12 w-12 text-gray-200 mb-4" />
+                      <p className="text-gray-500 mb-6 text-center max-w-xs">
+                        Run the validation engine to compare source and target database metrics.
+                      </p>
+                      <button
+                        onClick={handleValidate}
+                        className="bg-blue-600 text-white px-6 py-2 rounded-md font-bold hover:bg-blue-700 transition-colors shadow-sm"
+                      >
+                        Start Validation
                       </button>
                     </div>
                   )}

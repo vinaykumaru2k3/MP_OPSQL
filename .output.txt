@@ -1,0 +1,335 @@
+[INFO] Scanning for projects...
+[INFO]
+[INFO] ------------------< com.migrationplayground:backend >-------------------
+[INFO] Building migration-playground 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- clean:3.3.2:clean (default-clean) @ backend ---
+[INFO] Deleting C:\Users\vinau\OneDrive - ALLEGIS GROUP\Desktop\MP_OPSQL\backend\target
+[INFO]
+[INFO] --- jacoco:0.8.11:prepare-agent (default) @ backend ---
+[INFO] argLine set to "-javaagent:C:\\Users\\vinau\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.11\\org.jacoco.agent-0.8.11-runtime.jar=destfile=C:\\Users\\vinau\\OneDrive - ALLEGIS GROUP\\Desktop\\MP_OPSQL\\backend\\target\\jacoco.exec"
+[INFO]
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO]
+[INFO] --- compiler:3.11.0:compile (default-compile) @ backend ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 28 source files with javac [debug release 17] to target\classes
+[INFO] -------------------------------------------------------------
+[ERROR] COMPILATION ERROR :
+[INFO] -------------------------------------------------------------
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[10,2] incompatible types: com.migrationplayground.model.Table cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[19,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[27,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[30,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[33,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[36,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[7,2] incompatible types: com.migrationplayground.model.Table cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[23,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[26,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[29,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[32,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[35,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[38,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[44,50] cannot find symbol
+  symbol:   method getRawSql()
+  location: variable run of type com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[60,65] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.model.TableValidationMetric
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[72,51] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[84,14] cannot find symbol
+  symbol:   method setValidationResult(com.migrationplayground.model.ValidationResult)
+  location: variable m of type com.migrationplayground.model.TableValidationMetric
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[85,19] cannot find symbol
+  symbol:   method getMetrics()
+  location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[91,36] cannot find symbol
+  symbol:   method getValidationStatus()
+  location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[123,35] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.dto.ValidationResultDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[124,39] cannot find symbol
+  symbol:   method getMigrationRunId()
+  location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[125,41] cannot find symbol
+  symbol:   method getValidationStatus()
+  location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[126,45] cannot find symbol
+  symbol:   method getTablesValidatedCount()
+  location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[127,43] cannot find symbol
+  symbol:   method getTablesMatchedCount()
+  location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[128,36] cannot find symbol
+  symbol:   method getValidatedAt()
+  location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[129,32] cannot find symbol
+  symbol:   method getMetrics()
+  location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[130,59] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.dto.TableValidationMetricDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[37,26] cannot find symbol
+  symbol:   method getSeverity()
+  location: variable issue of type com.migrationplayground.model.AnalysisIssue
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[44,30] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[113,57] cannot find symbol
+  symbol:   method getConstruct()
+  location: variable i of type com.migrationplayground.model.AnalysisIssue
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[113,95] cannot find symbol
+  symbol:   method getDescription()
+  location: variable i of type com.migrationplayground.model.AnalysisIssue
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[115,37] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.model.AnalysisIssue
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[74,44] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[84,86] cannot find symbol
+  symbol:   method getId()
+  location: variable run of type com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[98,28] cannot find symbol
+  symbol:   method getRawSql()
+  location: variable run of type com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[102,15] cannot find symbol
+  symbol:   method setMigrationRunId(java.util.UUID)
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[106,50] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[107,39] cannot find symbol
+  symbol:   method getMigrationRunId()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[108,42] cannot find symbol
+  symbol:   method getHighSeverityCount()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[109,44] cannot find symbol
+  symbol:   method getMediumSeverityCount()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[110,41] cannot find symbol
+  symbol:   method getLowSeverityCount()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[111,31] cannot find symbol
+  symbol:   method getIssues()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[115,27] cannot find symbol
+  symbol:   method getHighSeverityCount()
+  location: variable dto of type com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[115,55] cannot find symbol
+  symbol:   method getMediumSeverityCount()
+  location: variable dto of type com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[115,85] cannot find symbol
+  symbol:   method getLowSeverityCount()
+  location: variable dto of type com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[124,33] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[125,39] cannot find symbol
+  symbol:   method getMigrationRunId()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[126,42] cannot find symbol
+  symbol:   method getHighSeverityCount()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[127,44] cannot find symbol
+  symbol:   method getMediumSeverityCount()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[128,41] cannot find symbol
+  symbol:   method getLowSeverityCount()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[129,31] cannot find symbol
+  symbol:   method getIssues()
+  location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[137,28] cannot find symbol
+  symbol:   method getRawSql()
+  location: variable run of type com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[140,49] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.model.ConvertedScript
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[150,34] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.dto.ConvertedScriptDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[160,34] cannot find symbol
+  symbol:   method builder()
+  location: class com.migrationplayground.dto.ConvertedScriptDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[161,39] cannot find symbol
+  symbol:   method getMigrationRunId()
+  location: variable script of type com.migrationplayground.model.ConvertedScript
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[162,37] cannot find symbol
+  symbol:   method getConvertedSql()
+  location: variable script of type com.migrationplayground.model.ConvertedScript
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/controller/MigrationController.java:[60,29] cannot find symbol
+  symbol:   method getConvertedSql()
+  location: variable script of type com.migrationplayground.dto.ConvertedScriptDto
+[INFO] 58 errors
+[INFO] -------------------------------------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  4.182 s
+[INFO] Finished at: 2026-04-13T17:28:14+05:30
+[INFO] ------------------------------------------------------------------------
+[ERROR] Failed to execute goal org.apache.maven.plugins:maven-compiler-plugin:3.11.0:compile (default-compile) on project backend: Compilation failure: Compilation failure:
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[10,2] incompatible types: com.migrationplayground.model.Table cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[19,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[27,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[30,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[33,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/ValidationResult.java:[36,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[7,2] incompatible types: com.migrationplayground.model.Table cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[23,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[26,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[29,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[32,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[35,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/model/TableValidationMetric.java:[38,6] incompatible types: com.migrationplayground.model.Column cannot be converted to java.lang.annotation.Annotation
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[44,50] cannot find symbol
+[ERROR]   symbol:   method getRawSql()
+[ERROR]   location: variable run of type com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[60,65] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.model.TableValidationMetric
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[72,51] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[84,14] cannot find symbol
+[ERROR]   symbol:   method setValidationResult(com.migrationplayground.model.ValidationResult)
+[ERROR]   location: variable m of type com.migrationplayground.model.TableValidationMetric
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[85,19] cannot find symbol
+[ERROR]   symbol:   method getMetrics()
+[ERROR]   location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[91,36] cannot find symbol
+[ERROR]   symbol:   method getValidationStatus()
+[ERROR]   location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[123,35] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.dto.ValidationResultDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[124,39] cannot find symbol
+[ERROR]   symbol:   method getMigrationRunId()
+[ERROR]   location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[125,41] cannot find symbol
+[ERROR]   symbol:   method getValidationStatus()
+[ERROR]   location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[126,45] cannot find symbol
+[ERROR]   symbol:   method getTablesValidatedCount()
+[ERROR]   location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[127,43] cannot find symbol
+[ERROR]   symbol:   method getTablesMatchedCount()
+[ERROR]   location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[128,36] cannot find symbol
+[ERROR]   symbol:   method getValidatedAt()
+[ERROR]   location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[129,32] cannot find symbol
+[ERROR]   symbol:   method getMetrics()
+[ERROR]   location: variable result of type com.migrationplayground.model.ValidationResult
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/ValidationService.java:[130,59] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.dto.TableValidationMetricDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[37,26] cannot find symbol
+[ERROR]   symbol:   method getSeverity()
+[ERROR]   location: variable issue of type com.migrationplayground.model.AnalysisIssue
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[44,30] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[113,57] cannot find symbol
+[ERROR]   symbol:   method getConstruct()
+[ERROR]   location: variable i of type com.migrationplayground.model.AnalysisIssue
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[113,95] cannot find symbol
+[ERROR]   symbol:   method getDescription()
+[ERROR]   location: variable i of type com.migrationplayground.model.AnalysisIssue
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/analyzer/CompatibilityAnalyzer.java:[115,37] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.model.AnalysisIssue
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[74,44] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[84,86] cannot find symbol
+[ERROR]   symbol:   method getId()
+[ERROR]   location: variable run of type com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[98,28] cannot find symbol
+[ERROR]   symbol:   method getRawSql()
+[ERROR]   location: variable run of type com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[102,15] cannot find symbol
+[ERROR]   symbol:   method setMigrationRunId(java.util.UUID)
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[106,50] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[107,39] cannot find symbol
+[ERROR]   symbol:   method getMigrationRunId()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[108,42] cannot find symbol
+[ERROR]   symbol:   method getHighSeverityCount()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[109,44] cannot find symbol
+[ERROR]   symbol:   method getMediumSeverityCount()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[110,41] cannot find symbol
+[ERROR]   symbol:   method getLowSeverityCount()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[111,31] cannot find symbol
+[ERROR]   symbol:   method getIssues()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[115,27] cannot find symbol
+[ERROR]   symbol:   method getHighSeverityCount()
+[ERROR]   location: variable dto of type com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[115,55] cannot find symbol
+[ERROR]   symbol:   method getMediumSeverityCount()
+[ERROR]   location: variable dto of type com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[115,85] cannot find symbol
+[ERROR]   symbol:   method getLowSeverityCount()
+[ERROR]   location: variable dto of type com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[124,33] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.dto.AnalysisReportDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[125,39] cannot find symbol
+[ERROR]   symbol:   method getMigrationRunId()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[126,42] cannot find symbol
+[ERROR]   symbol:   method getHighSeverityCount()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[127,44] cannot find symbol
+[ERROR]   symbol:   method getMediumSeverityCount()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[128,41] cannot find symbol
+[ERROR]   symbol:   method getLowSeverityCount()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[129,31] cannot find symbol
+[ERROR]   symbol:   method getIssues()
+[ERROR]   location: variable report of type com.migrationplayground.model.AnalysisReport
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[137,28] cannot find symbol
+[ERROR]   symbol:   method getRawSql()
+[ERROR]   location: variable run of type com.migrationplayground.model.MigrationRun
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[140,49] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.model.ConvertedScript
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[150,34] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.dto.ConvertedScriptDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[160,34] cannot find symbol
+[ERROR]   symbol:   method builder()
+[ERROR]   location: class com.migrationplayground.dto.ConvertedScriptDto
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[161,39] cannot find symbol
+[ERROR]   symbol:   method getMigrationRunId()
+[ERROR]   location: variable script of type com.migrationplayground.model.ConvertedScript
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/service/SchemaService.java:[162,37] cannot find symbol
+[ERROR]   symbol:   method getConvertedSql()
+[ERROR]   location: variable script of type com.migrationplayground.model.ConvertedScript
+[ERROR] /C:/Users/vinau/OneDrive - ALLEGIS GROUP/Desktop/MP_OPSQL/backend/src/main/java/com/migrationplayground/controller/MigrationController.java:[60,29] cannot find symbol
+[ERROR]   symbol:   method getConvertedSql()
+[ERROR]   location: variable script of type com.migrationplayground.dto.ConvertedScriptDto
+[ERROR] -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoFailureException

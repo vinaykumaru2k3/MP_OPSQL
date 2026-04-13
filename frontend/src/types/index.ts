@@ -26,3 +26,21 @@ export interface ConvertedScript {
   migrationRunId: string;
   convertedSql: string;
 }
+
+export interface TableValidationMetric {
+  tableName: string;
+  sourceRowCount: number;
+  targetRowCount: number;
+  rowCountMatch: boolean;
+  dataTypeMatch: boolean;
+  nullCountMatch: boolean;
+}
+
+export interface ValidationResult {
+  migrationRunId: string;
+  validationStatus: 'PASSED' | 'WARNING' | 'FAILED';
+  tablesValidatedCount: number;
+  tablesMatchedCount: number;
+  validatedAt: string;
+  metrics: TableValidationMetric[];
+}

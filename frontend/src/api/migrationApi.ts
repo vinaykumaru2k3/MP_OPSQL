@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { MigrationRun, AnalysisReport, ConvertedScript } from '../types';
+import type { MigrationRun, AnalysisReport, ConvertedScript, ValidationResult } from '../types';
 
 const API_BASE_URL = '/api/v1/migrations';
 
@@ -36,6 +36,16 @@ export const migrationApi = {
 
   getConvertedScript: async (id: string): Promise<ConvertedScript> => {
     const response = await api.get(`/${id}/converted-script`);
+    return response.data;
+  },
+
+  validate: async (id: string): Promise<ValidationResult> => {
+    const response = await api.post(`/${id}/validate`);
+    return response.data;
+  },
+
+  getValidation: async (id: string): Promise<ValidationResult> => {
+    const response = await api.get(`/${id}/validation`);
     return response.data;
   },
 };

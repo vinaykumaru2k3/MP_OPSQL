@@ -43,13 +43,13 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Build **Home & Upload UI** (Base scaffold with routing)
   - [x] Build **Analysis Dashboard UI** (Metrics and severity grouped charts using `recharts`)
 
-- [ ] **Sprint 5: Validation Engine**
-  - [ ] Create `ValidationResult` domain model and Repository
-  - [ ] Implement `ValidationService` using dynamic JDBC context to connect to both Oracle AND PostgreSQL
-  - [ ] Execute `Row Count`, `Null Count`, and `Data Type` matching between both databases
-  - [ ] Write `ValidationServiceTest.java` (Cases V-01 to V-08)
-  - [ ] Implement `POST /api/v1/migrations/{id}/validate`
-  - [ ] Add Validation table and metric UI to the React frontend
+- [x] **Sprint 5: Validation Engine** ✅ _Completed 2026-04-13_
+  - [x] Create `ValidationResult` domain model and Repository
+  - [x] Implement `ValidationService` using dynamic JDBC context to connect to both Oracle AND PostgreSQL
+  - [x] Execute `Row Count`, `Null Count`, and `Data Type` matching between both databases
+  - [x] Write `ValidationServiceTest.java` (Cases V-01 to V-08)
+  - [x] Implement `POST /api/v1/migrations/{id}/validate`
+  - [x] Add Validation table and metric UI to the React frontend
 
 - [ ] **Sprint 6: Polish, Export, & Hardening**
   - [ ] Implement `GET /api/v1/migrations/{id}/report` to return fully aggregated run record
