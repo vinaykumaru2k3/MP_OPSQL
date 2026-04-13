@@ -166,6 +166,38 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Sprint 2 — Analysis Endpoints",
+      "description": "Endpoints to run and retrieve compatibility analysis (API-05 and API-06)",
+      "item": [
+        {
+          "name": "API-05 | Run Analysis",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/analyze",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "analyze"]
+            },
+            "description": "**API-05 — Run Analysis**\n\nRuns the compatibility analyzer for the given Migration Run ID."
+          }
+        },
+        {
+          "name": "API-06 | Get Analysis",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/analysis",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "analysis"]
+            },
+            "description": "**API-06 — Get Analysis**\n\nRetrieves the generated compatibility analysis report."
+          }
+        }
+      ]
     }
   ]
 }

@@ -118,4 +118,20 @@ public class SqlParserTest {
         IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> sqlParser.parse(""));
         assertTrue(ex.getMessage().contains("empty"));
     }
+
+    @Test
+    void testStringLiteralIsolation_P12() {
+        // SQL where a string literal contains what looks like a comment. 
+        // Without masking, the comment stripper would corrupt the string data.
+        String sql = "CREATE TABLE messages (msg VARCHAR2(100));\n" +
+                     "INSERT INTO messages VALUES ('This is -- not a comment');\n" +
+                     "CREATE TABLE other (id NUMBER);";
+        
+        ParsedSchema schema = sqlParser.parse(sql);
+        
+        // We mainly care that the parser didn't crash and correctly found both tables
+        assertEquals(2, schema.getTables().size());
+        assertEquals("messages", schema.getTables().get(0).getName());
+        assertEquals("other", schema.getTables().get(1).getName());
+    }
 }

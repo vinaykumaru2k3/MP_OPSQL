@@ -14,28 +14,30 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Provide sample Oracle SQL files for tests `sql/samples/sample_01_basic_ddl.sql`
   - [x] Create `docker-compose.yml` for local PostgreSQL database instance
 
-- [ ] **Sprint 2: Compatibility Analyzer**
-  - [ ] Create `AnalysisReport` model and DTO
-  - [ ] Implement `CompatibilityAnalyzer.java` with the full conversion rules map (Data Types, Functions, Subqueries, PL/SQL)
-  - [ ] Ensure HIGH, MEDIUM, LOW severity tracking is correctly applied
-  - [ ] Write `CompatibilityAnalyzerTest.java` (Cases A-01 to A-15)
-  - [ ] Implement `POST /api/v1/migrations/{id}/analyze`
-  - [ ] Implement `GET /api/v1/migrations/{id}/analysis`
-  - [ ] Add analyzer endpoints to Postman collection
+- [x] **Sprint 2: Compatibility Analyzer** ✅ _Completed_
+  - [x] Create `AnalysisReport` model and DTO
+  - [x] Implement `CompatibilityAnalyzer.java` with the full conversion rules map (Data Types, Functions, Subqueries, PL/SQL)
+  - [x] Ensure HIGH, MEDIUM, LOW severity tracking is correctly applied
+  - [x] Write `CompatibilityAnalyzerTest.java` (Cases A-01 to A-15)
+  - [x] Implement `POST /api/v1/migrations/{id}/analyze`
+  - [x] Implement `GET /api/v1/migrations/{id}/analysis`
+  - [x] Add analyzer endpoints to Postman collection
 
-- [ ] **Sprint 3: Conversion Engine**
-  - [ ] Create `ConvertedScript` model and DTO
-  - [ ] Implement `SqlConverter.java` for string replacements and context-aware transformations (`NVL` -> `COALESCE`, `ROWNUM` -> `LIMIT`)
-  - [ ] Prevent auto-conversion on HIGH-severity unimplemented constructs (add manual review comments instead)
-  - [ ] Write `SqlConverterTest` (Cases CV-01 to CV-15)
-  - [ ] Implement `POST /api/v1/migrations/{id}/convert` endpoint
-  - [ ] Implement `GET /api/v1/migrations/{id}/converted-script` (returns `text/plain` SQL)
-  - [ ] Add conversion endpoints to Postman collection
+- [x] **Sprint 3: Conversion Engine** ✅ _Completed 2026-04-13_
+  - [x] Create `ConvertedScript` model and DTO
+  - [x] Implement `SqlConverter.java` for string replacements and context-aware transformations (`NVL` -> `COALESCE`, `NVL2` -> `CASE`, `ROWNUM` -> `LIMIT`)
+  - [x] Prevent auto-conversion on HIGH-severity unimplemented constructs (add manual review comments instead)
+  - [x] Implement String Literal Masking for Enterprise Resilience (Hardening: `SqlParser`, `CompatibilityAnalyzer`, `SqlConverter`)
+  - [x] Write `SqlConverterTest` (Cases CV-01 to CV-18)
+  - [x] Implement `POST /api/v1/migrations/{id}/convert` endpoint
+  - [x] Implement `GET /api/v1/migrations/{id}/converted-script` (returns `text/plain` SQL)
+  - [x] Add conversion endpoints to Postman collection
 
 - [ ] **Sprint 4: Database Persistence & React UI Scaffold**
   - [ ] Add Flyway dependency and script `V1__initial_schema.sql` through `V5`
   - [ ] Integrate Repositories: `MigrationRunRepository`, `AnalysisReportRepository`, `ConvertedScriptRepository`
   - [ ] Refactor Services to securely persist outputs in PostgreSQL
+  - [ ] **Technical Debt:** Remove the temporary in-memory SQL cache from `SchemaService` (added in Sprint 2) and persist raw files to PostgreSQL/File System
   - [ ] Initialize React frontend in `/frontend` directory (`npx create-react-app` or Vite)
   - [ ] Set up frontend `.env.local` to point to `REACT_APP_API_BASE_URL`
   - [ ] Build **Home & Upload UI** (react-dropzone integration)
