@@ -85,6 +85,8 @@ Before any conversion rules are applied, the engine scans the raw SQL for string
 *   **Why?**: Without this, if an `INSERT` statement contains the word `'NVL'`, a blind search-and-replace would turn it into `'COALESCE'`, corrupting the actual data.
 *   **Restoration**: After all conversion phases are complete, the engine swaps the placeholders back for the original strings.
 
+**Note**: This same technique was also back-ported to the `SqlParser` (Sprint 1) and `CompatibilityAnalyzer` (Sprint 2) to prevent SQL comments (like `--`) inside strings from breaking the parsing engine or causing false positives during analysis.
+
 ### Phase 1: Data Type Conversions
 The engine maps Oracle-specific types to their closest PostgreSQL equivalents.
 - `VARCHAR2` / `NVARCHAR2` → `VARCHAR`
@@ -96,6 +98,7 @@ The engine maps Oracle-specific types to their closest PostgreSQL equivalents.
 ### Phase 2: Function Rewriting
 Proprietary Oracle functions are replaced with standard ANSI SQL or PostgreSQL-specific functions.
 - `NVL(a, b)` → `COALESCE(a, b)`
+- `NVL2(a, b, c)` → `CASE WHEN a IS NOT NULL THEN b ELSE c END`
 - `SYSDATE` → `CURRENT_TIMESTAMP`
 - `MINUS` → `EXCEPT`
 - `SYS_GUID()` → `gen_random_uuid()`
@@ -111,6 +114,13 @@ Pattern p = Pattern.compile("(\\w+)\\.NEXTVAL", Pattern.CASE_INSENSITIVE);
 For constructs where an automated fix might change the query's semantics or is too complex for simple regex, the engine injects a comment.
 - **Example**: `SELECT * FROM table WHERE ROWNUM <= 1`
 - **Becomes**: `SELECT * FROM table WHERE /* TODO [MANUAL_REVIEW]: Oracle ROWNUM detected. Convert to LIMIT/OFFSET. */ ROWNUM <= 1`
+
+Constructs handled:
+- `ROWNUM`
+- `(+)` (Outer Joins)
+- `CONNECT BY` / `START WITH` (Hierarchical Queries)
+- `DECODE` (Complex conditional logic)
+- `ROWID`
 
 This ensures that the DBA is alerted to sections of the code that require human oversight.
 
@@ -138,12 +148,15 @@ Two new endpoints were added to expose the conversion functionality:
 
 **File**: `test/.../analyzer/SqlConverterTest.java`
 
-15 unit tests were implemented to verify the conversion logic across various scenarios:
+18 unit tests were implemented to verify the conversion logic across various scenarios:
 - **CV-01 to CV-04**: Data type mapping accuracy.
-- **CV-05 to CV-08**: Function replacement logic.
-- **CV-09**: Sequence syntax transformation.
+- **CV-05 to CV-08**: Function replacement logic (including `NVL`, `SYSDATE`, `MINUS`, `SYS_GUID`).
+- **CV-09**: Sequence syntax transformation (`.NEXTVAL`).
 - **CV-10 to CV-14**: Correct injection of manual review comments for high-severity items.
 - **CV-15**: End-to-end multi-line script transformation.
+- **CV-16**: **Enterprise Resilience**: Verifying String Literal Masking (data integrity check).
+- **CV-17**: `NVL2` transformation with complex whitespace.
+- **CV-18**: Automated `DECODE` flagging for manual review.
 
 These tests ensure that the conversion engine remains reliable as more rules are added in future iterations.
 
