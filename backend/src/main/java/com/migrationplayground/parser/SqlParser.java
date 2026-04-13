@@ -21,11 +21,18 @@ public class SqlParser {
             throw new IllegalArgumentException("SQL input cannot be empty.");
         }
         
-        // Remove comments
-        String sql = rawSql.replaceAll("--.*", "");
+        // Mask String Literals to avoid corrupting content inside quotes
+        java.util.List<String> literals = new java.util.ArrayList<>();
+        String maskedSql = maskStringLiterals(rawSql, literals);
+
+        // Remove comments from masked SQL
+        String sql = maskedSql.replaceAll("--.*", "");
         sql = sql.replaceAll("/\\*.*?\\*/", "");
         sql = sql.replaceAll("\r\n", "\n"); // normalize line endings
         
+        // Restore String Literals
+        sql = unmaskStringLiterals(sql, literals);
+
         ParsedSchema schema = new ParsedSchema();
         
         String[] tableBlocks = sql.split("(?i)CREATE\\s+TABLE\\s+");
@@ -130,5 +137,28 @@ public class SqlParser {
             table.getConstraints().add(constraint);
             return;
         }
+    }
+
+    private String maskStringLiterals(String sql, java.util.List<String> literals) {
+        Pattern p = Pattern.compile("'(?:[^']|'')*'");
+        Matcher m = p.matcher(sql);
+        StringBuilder sb = new StringBuilder();
+        int lastIndex = 0;
+        while (m.find()) {
+            sb.append(sql, lastIndex, m.start());
+            sb.append("___STR_LITERAL_").append(literals.size()).append("___");
+            literals.add(m.group());
+            lastIndex = m.end();
+        }
+        sb.append(sql.substring(lastIndex));
+        return sb.toString();
+    }
+
+    private String unmaskStringLiterals(String sql, java.util.List<String> literals) {
+        String result = sql;
+        for (int i = 0; i < literals.size(); i++) {
+            result = result.replace("___STR_LITERAL_" + i + "___", literals.get(i));
+        }
+        return result;
     }
 }

@@ -25,10 +25,10 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
 
 - [x] **Sprint 3: Conversion Engine** ✅ _Completed 2026-04-13_
   - [x] Create `ConvertedScript` model and DTO
-  - [x] Implement `SqlConverter.java` for string replacements and context-aware transformations (`NVL` -> `COALESCE`, `ROWNUM` -> `LIMIT`)
+  - [x] Implement `SqlConverter.java` for string replacements and context-aware transformations (`NVL` -> `COALESCE`, `NVL2` -> `CASE`, `ROWNUM` -> `LIMIT`)
   - [x] Prevent auto-conversion on HIGH-severity unimplemented constructs (add manual review comments instead)
-  - [x] Implement String Literal Masking for Enterprise Resilience (Hardening)
-  - [x] Write `SqlConverterTest` (Cases CV-01 to CV-16)
+  - [x] Implement String Literal Masking for Enterprise Resilience (Hardening: `SqlParser`, `CompatibilityAnalyzer`, `SqlConverter`)
+  - [x] Write `SqlConverterTest` (Cases CV-01 to CV-18)
   - [x] Implement `POST /api/v1/migrations/{id}/convert` endpoint
   - [x] Implement `GET /api/v1/migrations/{id}/converted-script` (returns `text/plain` SQL)
   - [x] Add conversion endpoints to Postman collection

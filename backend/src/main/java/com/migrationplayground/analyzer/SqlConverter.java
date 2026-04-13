@@ -81,6 +81,9 @@ public class SqlConverter {
         // NVL(a, b) -> COALESCE(a, b)
         sql = sql.replaceAll("(?i)\\bNVL\\s*\\(", "COALESCE(");
         
+        // NVL2(expr, res1, res2) -> CASE WHEN expr IS NOT NULL THEN res1 ELSE res2 END
+        sql = sql.replaceAll("(?i)\\bNVL2\\s*\\(([^,]+),\\s*([^,]+),\\s*([^)]+)\\)", "CASE WHEN $1 IS NOT NULL THEN $2 ELSE $3 END");
+
         // SYSDATE -> CURRENT_TIMESTAMP
         sql = sql.replaceAll("(?i)\\bSYSDATE\\b", "CURRENT_TIMESTAMP");
         
@@ -90,13 +93,6 @@ public class SqlConverter {
         // SYS_GUID() -> gen_random_uuid()
         sql = sql.replaceAll("(?i)\\bSYS_GUID\\s*\\(\\s*\\)", "gen_random_uuid()");
 
-        // DECODE(expr, search, result, default) -> CASE WHEN expr = search THEN result ELSE default END
-        // Simple regex for DECODE is hard, but we can do a basic replacement of the keyword for now 
-        // as a placeholder or use a more advanced pattern. For Sprint 3, basic keyword replacement 
-        // might be too risky without full parsing, but we'll try a common pattern.
-        // Actually, DECODE to CASE is complex. Let's just flag it for now or do a simple replace if possible.
-        // For now, let's stick to the simpler ones and flag DECODE as MEDIUM in analyzer.
-        
         return sql;
     }
 
@@ -125,6 +121,9 @@ public class SqlConverter {
         // CONNECT BY
         sql = sql.replaceAll("(?i)\\bCONNECT\\s+BY\\b", "/* TODO [MANUAL_REVIEW]: Oracle CONNECT BY detected. Convert to WITH RECURSIVE. */ CONNECT BY");
         
+        // DECODE
+        sql = sql.replaceAll("(?i)\\bDECODE\\s*\\(", "/* TODO [MANUAL_REVIEW]: Oracle DECODE detected. Convert to CASE. */ DECODE(");
+
         // ROWID
         sql = sql.replaceAll("(?i)\\bROWID\\b", "/* TODO [MANUAL_REVIEW]: Oracle ROWID detected. No direct PostgreSQL equivalent. */ ROWID");
 

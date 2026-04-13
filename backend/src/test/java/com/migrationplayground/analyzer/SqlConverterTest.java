@@ -165,4 +165,19 @@ class SqlConverterTest {
         assertTrue(result2.contains("'SYSDATE is today'"), "SYSDATE inside string should remain unchanged");
         assertTrue(result2.contains("CURRENT_TIMESTAMP"), "SYSDATE outside string SHOULD be converted");
     }
+    @Test
+    void testCV17_Nvl2Conversion() {
+        String sql = "SELECT NVL2(comm, 'Has Commission', 'No Commission') FROM emp;";
+        String result = converter.convert(sql);
+        assertTrue(result.contains("CASE WHEN comm IS NOT NULL THEN 'Has Commission' ELSE 'No Commission' END"));
+        assertFalse(result.contains("NVL2"));
+    }
+
+    @Test
+    void testCV18_DecodeFlagging() {
+        String sql = "SELECT DECODE(deptno, 10, 'Accounting', 20, 'Research', 'Other') FROM dept;";
+        String result = converter.convert(sql);
+        assertTrue(result.contains("MANUAL_REVIEW"));
+        assertTrue(result.contains("DECODE("));
+    }
 }
