@@ -33,15 +33,15 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Implement `GET /api/v1/migrations/{id}/converted-script` (returns `text/plain` SQL)
   - [x] Add conversion endpoints to Postman collection
 
-- [ ] **Sprint 4: Database Persistence & React UI Scaffold**
-  - [ ] Add Flyway dependency and script `V1__initial_schema.sql` through `V5`
-  - [ ] Integrate Repositories: `MigrationRunRepository`, `AnalysisReportRepository`, `ConvertedScriptRepository`
-  - [ ] Refactor Services to securely persist outputs in PostgreSQL
-  - [ ] **Technical Debt:** Remove the temporary in-memory SQL cache from `SchemaService` (added in Sprint 2) and persist raw files to PostgreSQL/File System
-  - [ ] Initialize React frontend in `/frontend` directory (`npx create-react-app` or Vite)
-  - [ ] Set up frontend `.env.local` to point to `REACT_APP_API_BASE_URL`
-  - [ ] Build **Home & Upload UI** (react-dropzone integration)
-  - [ ] Build **Analysis Dashboard UI** (Metrics and severity grouped charts using `recharts`)
+- [x] **Sprint 4: Database Persistence & React UI Scaffold** ✅ _Completed 2026-04-13_
+  - [x] Add Flyway dependency and script `V1__initial_schema.sql`
+  - [x] Integrate Repositories: `MigrationRunRepository`, `AnalysisReportRepository`, `ConvertedScriptRepository`
+  - [x] Refactor Services to securely persist outputs in PostgreSQL
+  - [x] **Technical Debt:** Remove the temporary in-memory SQL cache from `SchemaService` (added in Sprint 2) and persist raw files to PostgreSQL
+  - [x] Initialize React frontend in `/frontend` directory (using Vite + TypeScript)
+  - [x] Set up frontend routing, Axios API service, and types
+  - [x] Build **Home & Upload UI** (Base scaffold with routing)
+  - [x] Build **Analysis Dashboard UI** (Metrics and severity grouped charts using `recharts`)
 
 - [ ] **Sprint 5: Validation Engine**
   - [ ] Create `ValidationResult` domain model and Repository
