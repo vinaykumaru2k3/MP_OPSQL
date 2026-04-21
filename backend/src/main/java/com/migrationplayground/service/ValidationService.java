@@ -34,8 +34,10 @@ public class ValidationService {
     // If the project doesn't have an Oracle DB to connect to, this serves as a template.
     private final JdbcTemplate jdbcTemplate;
 
-    @Transactional
     public ValidationResultDto validateMigration(UUID migrationId) {
+        if (validationResultRepository.existsById(migrationId)) {
+            return getValidationResult(migrationId);
+        }
         log.info("Starting validation for migration ID: {}", migrationId);
         
         MigrationRun run = migrationRunRepository.findById(migrationId)

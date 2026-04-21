@@ -102,6 +102,9 @@ public class SchemaService {
     }
 
     public AnalysisReportDto analyze(UUID runId) {
+        if (analysisReportRepository.existsById(runId)) {
+            return getAnalysis(runId);
+        }
         MigrationRun run = migrationRunRepository.findById(runId)
                 .orElseThrow(() -> new IllegalArgumentException("Migration run not found for ID: " + runId));
 
@@ -141,6 +144,9 @@ public class SchemaService {
     }
 
     public ConvertedScriptDto convert(UUID runId) {
+        if (convertedScriptRepository.existsById(runId)) {
+            return getConvertedScript(runId);
+        }
         MigrationRun run = migrationRunRepository.findById(runId)
                 .orElseThrow(() -> new IllegalArgumentException("Migration run not found for ID: " + runId));
 
