@@ -114,7 +114,12 @@ public class SchemaService {
         AnalysisReport report = compatibilityAnalyzer.analyze(schema, rawSql);
         report.setMigrationRunId(runId);
 
-        report = analysisReportRepository.save(report);
+        try {
+            report = analysisReportRepository.save(report);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.warn("Concurrent save detected for analysis {}, returning existing.", runId);
+            return getAnalysis(runId);
+        }
 
         AnalysisReportDto dto = AnalysisReportDto.builder()
                 .migrationRunId(report.getMigrationRunId())
@@ -159,7 +164,12 @@ public class SchemaService {
                 .convertedSql(convertedSql)
                 .build();
 
-        convertedScriptRepository.save(script);
+        try {
+            convertedScriptRepository.save(script);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.warn("Concurrent save detected for conversion {}, returning existing.", runId);
+            return getConvertedScript(runId);
+        }
 
         log.info("Conversion completed and persisted for run ID: {}", runId);
 

@@ -21,10 +21,7 @@ public class ValidationResult {
     @Column(name = "migration_run_id")
     private UUID migrationRunId;
 
-    @OneToOne
-    @MapsId
-    @JoinColumn(name = "migration_run_id")
-    private MigrationRun migrationRun;
+
 
     @Column(name = "validation_status", nullable = false)
     private String validationStatus;

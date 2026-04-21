@@ -73,7 +73,6 @@ public class ValidationService {
         
         ValidationResult result = ValidationResult.builder()
                 .migrationRunId(migrationId)
-                .migrationRun(run)
                 .validationStatus(matchedCount == tables.size() ? "PASSED" : "WARNING")
                 .tablesValidatedCount(tables.size())
                 .tablesMatchedCount(matchedCount)
@@ -87,7 +86,12 @@ public class ValidationService {
             result.getMetrics().add(m);
         }
         
-        validationResultRepository.save(result);
+        try {
+            validationResultRepository.save(result);
+        } catch (org.springframework.dao.DataIntegrityViolationException e) {
+            log.warn("Concurrent save detected for validation {}, returning existing.", migrationId);
+            return getValidationResult(migrationId);
+        }
         
         log.info("Validation completed for run {}. Status: {}. Matched: {}/{}", 
                 migrationId, result.getValidationStatus(), matchedCount, tables.size());
