@@ -106,23 +106,20 @@ public class ValidationService {
     }
 
     private Long getSourceRowCount(String tableName) {
-        // MOCKED: In a real scenario, this would query the Oracle source DB.
-        // For the playground, we'll simulate a count (often matching target for demo purposes).
-        try {
-             return jdbcTemplate.queryForObject("SELECT count(*) FROM " + tableName, Long.class);
-        } catch (Exception e) {
-            log.warn("Could not fetch source row count for table {}: {}", tableName, e.getMessage());
-            return 0L; 
-        }
+        long hash = Math.abs((long) tableName.hashCode());
+        // Simulate a realistic row count between 100 and 150,000 based on the table name
+        return 100L + (hash % 150000L);
     }
 
     private Long getTargetRowCount(String tableName) {
-        try {
-            return jdbcTemplate.queryForObject("SELECT count(*) FROM " + tableName, Long.class);
-        } catch (Exception e) {
-            log.warn("Could not fetch target row count for table {}: {}", tableName, e.getMessage());
-            return 0L;
+        long sourceCount = getSourceRowCount(tableName);
+        long hash = Math.abs((long) tableName.hashCode());
+        
+        // Inject a simulated mismatch for about 20% of tables to demonstrate "WARNING" statuses
+        if (hash % 5 == 0) {
+            return sourceCount - (hash % 15) - 1L; // Slight data loss simulation
         }
+        return sourceCount;
     }
 
     private ValidationResultDto mapToDto(ValidationResult result) {
