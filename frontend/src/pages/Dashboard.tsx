@@ -84,6 +84,10 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleExport = (type: 'pdf' | 'json') => {
+    window.location.href = `http://localhost:8080/api/v1/migrations/${runId}/export/${type}`;
+  };
+
   if (!runId) {
     return (
       <div className="text-center py-20 bg-white rounded-xl shadow-sm border border-gray-100">
@@ -131,6 +135,20 @@ const Dashboard: React.FC = () => {
             title="Refresh Dashboard"
           >
             <Loader2 className={`h-5 w-5 ${loading ? 'animate-spin text-blue-600' : ''}`} />
+          </button>
+          <button 
+            onClick={() => handleExport('pdf')}
+            className="p-2 text-gray-400 hover:text-red-600 bg-white border border-gray-200 rounded-md shadow-sm transition-colors"
+            title="Download PDF Report"
+          >
+            <Download className="h-5 w-5" />
+          </button>
+          <button 
+            onClick={() => handleExport('json')}
+            className="p-2 text-gray-400 hover:text-yellow-600 bg-white border border-gray-200 rounded-md shadow-sm transition-colors"
+            title="Download JSON Report"
+          >
+            <Download className="h-5 w-5" />
           </button>
           <button
             onClick={handleConvert}
@@ -351,9 +369,9 @@ const Dashboard: React.FC = () => {
                   {script ? (
                     <>
                       <div className="flex justify-between items-center mb-4">
-                        <p className="text-sm text-gray-500 italic">Generated PostgreSQL DDL/DML script</p>
+                        <p className="text-sm text-gray-500 italic">Side-by-side SQL Comparison</p>
                         <button 
-                          className="text-xs font-bold text-blue-600 flex items-center hover:underline"
+                          className="text-xs font-bold text-blue-600 flex items-center hover:underline bg-blue-50 px-3 py-1.5 rounded-md"
                           onClick={() => {
                             const blob = new Blob([script.convertedSql], { type: 'text/plain' });
                             const url = window.URL.createObjectURL(blob);
@@ -364,11 +382,22 @@ const Dashboard: React.FC = () => {
                           }}
                         >
                           <Download className="h-3 w-3 mr-1" />
-                          Download SQL
+                          Download Output
                         </button>
                       </div>
-                      <div className="flex-grow bg-gray-900 rounded-lg p-4 font-mono text-xs text-gray-300 overflow-auto whitespace-pre leading-relaxed">
-                        {script.convertedSql}
+                      <div className="flex-grow grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="bg-gray-900 rounded-lg p-4 flex flex-col h-full min-h-[400px]">
+                          <div className="text-xs font-bold text-gray-400 mb-2 border-b border-gray-700 pb-2">Oracle Source Code</div>
+                          <div className="font-mono text-xs text-gray-300 overflow-auto whitespace-pre leading-relaxed flex-grow">
+                            {script.originalSql || 'No original SQL provided.'}
+                          </div>
+                        </div>
+                        <div className="bg-gray-900 rounded-lg p-4 flex flex-col h-full min-h-[400px]">
+                          <div className="text-xs font-bold text-emerald-400 mb-2 border-b border-gray-700 pb-2">PostgreSQL Output</div>
+                          <div className="font-mono text-xs text-emerald-50 overflow-auto whitespace-pre leading-relaxed flex-grow">
+                            {script.convertedSql}
+                          </div>
+                        </div>
                       </div>
                     </>
                   ) : (

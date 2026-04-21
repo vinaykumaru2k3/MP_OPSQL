@@ -18,10 +18,17 @@ import com.migrationplayground.analyzer.CompatibilityAnalyzer;
 import com.migrationplayground.analyzer.SqlConverter;
 import com.migrationplayground.dto.AnalysisReportDto;
 import com.migrationplayground.dto.ConvertedScriptDto;
+import com.migrationplayground.dto.FullReportDto;
+import com.migrationplayground.dto.ValidationResultDto;
 import com.migrationplayground.model.AnalysisReport;
 import com.migrationplayground.model.ConvertedScript;
-import com.migrationplayground.model.ParsedSchema;
 import java.util.UUID;
+import java.io.ByteArrayOutputStream;
+import com.lowagie.text.Document;
+import com.lowagie.text.HeaderFooter;
+import com.lowagie.text.Paragraph;
+import com.lowagie.text.Phrase;
+import com.lowagie.text.pdf.PdfWriter;
 
 @Service
 public class SchemaService {
@@ -33,19 +40,22 @@ public class SchemaService {
     private final SqlParser sqlParser;
     private final CompatibilityAnalyzer compatibilityAnalyzer;
     private final SqlConverter sqlConverter;
+    private final ValidationService validationService;
 
     public SchemaService(MigrationRunRepository migrationRunRepository, 
                         AnalysisReportRepository analysisReportRepository,
                         ConvertedScriptRepository convertedScriptRepository,
                         SqlParser sqlParser, 
                         CompatibilityAnalyzer compatibilityAnalyzer, 
-                        SqlConverter sqlConverter) {
+                        SqlConverter sqlConverter,
+                        ValidationService validationService) {
         this.migrationRunRepository = migrationRunRepository;
         this.analysisReportRepository = analysisReportRepository;
         this.convertedScriptRepository = convertedScriptRepository;
         this.sqlParser = sqlParser;
         this.compatibilityAnalyzer = compatibilityAnalyzer;
         this.sqlConverter = sqlConverter;
+        this.validationService = validationService;
     }
 
 
@@ -149,6 +159,7 @@ public class SchemaService {
 
         return ConvertedScriptDto.builder()
                 .migrationRunId(runId)
+                .originalSql(rawSql)
                 .convertedSql(convertedSql)
                 .build();
     }
@@ -159,8 +170,88 @@ public class SchemaService {
 
         return ConvertedScriptDto.builder()
                 .migrationRunId(script.getMigrationRunId())
+                .originalSql(script.getOriginalSql())
                 .convertedSql(script.getConvertedSql())
                 .build();
+    }
+
+    public FullReportDto getFullReport(UUID id) {
+        MigrationRun run = migrationRunRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Migration run not found for ID: " + id));
+
+        AnalysisReportDto analysis = null;
+        try {
+            analysis = getAnalysis(id);
+        } catch (Exception e) {
+            log.debug("No analysis report found for {}", id);
+        }
+
+        ConvertedScriptDto convertedScript = null;
+        try {
+            convertedScript = getConvertedScript(id);
+        } catch (Exception e) {
+            log.debug("No converted script found for {}", id);
+        }
+
+        ValidationResultDto validationResult = null;
+        try {
+            validationResult = validationService.getValidationResult(id);
+        } catch (Exception e) {
+            log.debug("No validation result found for {}", id);
+        }
+
+        return FullReportDto.builder()
+                .migrationRun(run)
+                .analysisReport(analysis)
+                .convertedScript(convertedScript)
+                .validationResult(validationResult)
+                .build();
+    }
+
+    public byte[] generatePdfReport(UUID id) {
+        FullReportDto report = getFullReport(id);
+
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            Document document = new Document();
+            PdfWriter.getInstance(document, baos);
+
+            HeaderFooter header = new HeaderFooter(new Phrase("Migration Playground - Official Report"), false);
+            header.setAlignment(1);
+            document.setHeader(header);
+
+            HeaderFooter footer = new HeaderFooter(new Phrase("Page "), true);
+            footer.setAlignment(1);
+            document.setFooter(footer);
+
+            document.open();
+
+            document.add(new Paragraph("Migration Run ID: " + id));
+            document.add(new Paragraph("File Name: " + report.getMigrationRun().getFileName()));
+            document.add(new Paragraph("Status: " + report.getMigrationRun().getStatus()));
+            document.add(new Paragraph("Tables: " + report.getMigrationRun().getTableCount()));
+            document.add(new Paragraph("Columns: " + report.getMigrationRun().getColumnCount()));
+            document.add(new Paragraph(" "));
+
+            if (report.getAnalysisReport() != null) {
+                document.add(new Paragraph("=== Analysis Summary ==="));
+                document.add(new Paragraph("High Severity Issues: " + report.getAnalysisReport().getHighSeverityCount()));
+                document.add(new Paragraph("Medium Severity Issues: " + report.getAnalysisReport().getMediumSeverityCount()));
+                document.add(new Paragraph("Low Severity Issues: " + report.getAnalysisReport().getLowSeverityCount()));
+                document.add(new Paragraph(" "));
+            }
+
+            if (report.getValidationResult() != null) {
+                document.add(new Paragraph("=== Validation Summary ==="));
+                document.add(new Paragraph("Validation Status: " + report.getValidationResult().getValidationStatus()));
+                document.add(new Paragraph("Matched Tables: " + report.getValidationResult().getTablesMatchedCount() + " / " + report.getValidationResult().getTablesValidatedCount()));
+                document.add(new Paragraph(" "));
+            }
+
+            document.close();
+            return baos.toByteArray();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to generate PDF report", e);
+        }
     }
 }
 

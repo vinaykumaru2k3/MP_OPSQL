@@ -2,6 +2,7 @@ package com.migrationplayground.controller;
 
 import com.migrationplayground.dto.AnalysisReportDto;
 import com.migrationplayground.dto.ConvertedScriptDto;
+import com.migrationplayground.dto.FullReportDto;
 import com.migrationplayground.dto.ValidationResultDto;
 import com.migrationplayground.model.MigrationRun;
 import com.migrationplayground.service.SchemaService;
@@ -70,5 +71,27 @@ public class MigrationController {
     public ResponseEntity<ValidationResultDto> getValidation(@PathVariable("id") UUID id) {
         ValidationResultDto result = validationService.getValidationResult(id);
         return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/report")
+    public ResponseEntity<FullReportDto> getFullReport(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(schemaService.getFullReport(id));
+    }
+
+    @GetMapping("/{id}/export/pdf")
+    public ResponseEntity<byte[]> exportPdf(@PathVariable("id") UUID id) {
+        byte[] pdfBytes = schemaService.generatePdfReport(id);
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report-" + id + ".pdf")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
+    @GetMapping("/{id}/export/json")
+    public ResponseEntity<FullReportDto> exportJson(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report-" + id + ".json")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(schemaService.getFullReport(id));
     }
 }

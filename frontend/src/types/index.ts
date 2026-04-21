@@ -24,6 +24,7 @@ export interface AnalysisReport {
 
 export interface ConvertedScript {
   migrationRunId: string;
+  originalSql?: string;
   convertedSql: string;
 }
 

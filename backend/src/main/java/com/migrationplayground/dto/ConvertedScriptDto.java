@@ -11,5 +11,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ConvertedScriptDto {
     private UUID migrationRunId;
+    private String originalSql;
     private String convertedSql;
 }

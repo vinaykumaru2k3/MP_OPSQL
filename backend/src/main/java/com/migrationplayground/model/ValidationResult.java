@@ -1,6 +1,8 @@
 package com.migrationplayground.model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
+import jakarta.persistence.Column;
 import lombok.*;
 import java.time.Instant;
 import java.util.List;
