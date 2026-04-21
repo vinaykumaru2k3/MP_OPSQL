@@ -1,8 +1,8 @@
 {
   "info": {
-    "_postman_id": "mp-opsql-sprint1-collection",
-    "name": "Migration Playground — Sprint 1",
-    "description": "API test collection for the Oracle → PostgreSQL Migration Playground backend.\n\nCovers the Sprint 1 upload endpoint (API-01 to API-04).\n\nBase URL: http://localhost:8080\n\nImport this file into Postman (File → Import) to instantly have all requests ready to run.",
+    "_postman_id": "mp-opsql-sprint6-collection",
+    "name": "Migration Playground — Sprint 1–6 (Full)",
+    "description": "Complete API test collection for the Oracle → PostgreSQL Migration Playground backend.\n\nCovers all endpoints API-01 to API-12 across all sprints.\n\nBase URL: http://localhost:8080\n\nImport this file into Postman (File → Import) to instantly have all requests ready to run.\n\n**Pre-requisites:**\n1. Run `docker compose up -d` to start PostgreSQL.\n2. Run the Spring Boot backend (`mvn spring-boot:run`).\n3. Set the `run_id` collection variable after running API-01.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -10,7 +10,13 @@
       "key": "base_url",
       "value": "http://localhost:8080",
       "type": "string",
-      "description": "Base URL of the running Spring Boot backend. Change this if your server runs on a different port."
+      "description": "Base URL of the running Spring Boot backend."
+    },
+    {
+      "key": "run_id",
+      "value": "",
+      "type": "string",
+      "description": "UUID of the MigrationRun. Populate this from the API-01 response 'id' field before running other requests."
     }
   ],
   "item": [
@@ -35,20 +41,18 @@
                   "key": "file",
                   "type": "file",
                   "src": "sql/samples/sample_01_basic_ddl.sql",
-                  "description": "A valid Oracle DDL .sql file. Use the sample from sql/samples/ in this repo."
+                  "description": "A valid Oracle DDL .sql file."
                 }
               ]
             },
-            "description": "**API-01 — Happy Path**\n\nUploads a valid Oracle DDL `.sql` file. The backend parses every `CREATE TABLE` block, counts tables and columns, persists a `MigrationRun` record to PostgreSQL, and returns it.\n\n**Expected response:** `201 Created`\n```json\n{\n  \"id\": \"<uuid>\",\n  \"fileName\": \"sample_01_basic_ddl.sql\",\n  \"status\": \"PARSED\",\n  \"tableCount\": <n>,\n  \"columnCount\": <n>,\n  \"createdAt\": \"<iso-timestamp>\"\n}\n```"
+            "description": "**API-01 — Happy Path**\n\nUploads a valid Oracle DDL `.sql` file. Returns a `MigrationRun` with status `PARSED`.\n\n**Expected:** `201 Created`\n\n> **Copy the `id` from the response and set it as the `run_id` collection variable.**"
           },
           "response": [
             {
               "name": "201 Created — Successful parse",
               "status": "Created",
               "code": 201,
-              "header": [
-                { "key": "Content-Type", "value": "application/json" }
-              ],
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
               "body": "{\n  \"id\": \"f47ac10b-58cc-4372-a567-0e02b2c3d479\",\n  \"fileName\": \"sample_01_basic_ddl.sql\",\n  \"status\": \"PARSED\",\n  \"tableCount\": 3,\n  \"columnCount\": 12,\n  \"createdAt\": \"2026-04-12T11:47:00Z\"\n}"
             }
           ]
@@ -62,38 +66,14 @@
               "raw": "{{base_url}}/api/v1/migrations/upload?file_name=my_custom_name.sql",
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "migrations", "upload"],
-              "query": [
-                {
-                  "key": "file_name",
-                  "value": "my_custom_name.sql",
-                  "description": "Optional. Overrides the original file name stored in the MigrationRun record."
-                }
-              ]
+              "query": [{ "key": "file_name", "value": "my_custom_name.sql" }]
             },
             "body": {
               "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": "sql/samples/sample_01_basic_ddl.sql",
-                  "description": "Any valid .sql file."
-                }
-              ]
+              "formdata": [{ "key": "file", "type": "file", "src": "sql/samples/sample_01_basic_ddl.sql" }]
             },
-            "description": "**API-02 — Custom file_name override**\n\nSame as API-01 but supplies the optional `file_name` query parameter. The `MigrationRun` record stored in the DB will use `my_custom_name.sql` instead of the original file name.\n\nThis is useful when the client renames the file before uploading, or when sending the file programmatically.\n\n**Expected response:** `201 Created` with `fileName` = `my_custom_name.sql`"
-          },
-          "response": [
-            {
-              "name": "201 Created — Custom fileName stored",
-              "status": "Created",
-              "code": 201,
-              "header": [
-                { "key": "Content-Type", "value": "application/json" }
-              ],
-              "body": "{\n  \"id\": \"a1b2c3d4-e5f6-7890-abcd-ef1234567890\",\n  \"fileName\": \"my_custom_name.sql\",\n  \"status\": \"PARSED\",\n  \"tableCount\": 3,\n  \"columnCount\": 12,\n  \"createdAt\": \"2026-04-12T11:48:00Z\"\n}"
-            }
-          ]
+            "description": "**API-02 — Custom file_name override**\n\n**Expected:** `201 Created` with `fileName` = `my_custom_name.sql`"
+          }
         },
         {
           "name": "API-03 | Upload non-.sql file → 400 Bad Request",
@@ -107,28 +87,10 @@
             },
             "body": {
               "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": "README.md",
-                  "description": "A non-.sql file (e.g. a .md, .txt, or .csv). The backend must reject this."
-                }
-              ]
+              "formdata": [{ "key": "file", "type": "file", "src": "README.md" }]
             },
-            "description": "**API-03 — Invalid file type**\n\nUploads a file that does not have a `.sql` extension. The `SchemaService` guard rejects it immediately before any parsing occurs.\n\n**Expected response:** `400 Bad Request`\n```json\n{\n  \"timestamp\": \"<iso-timestamp>\",\n  \"status\": 400,\n  \"error\": \"BAD_REQUEST\",\n  \"message\": \"Uploaded file is not a valid SQL file.\",\n  \"path\": \"/api/v1/migrations/upload\"\n}\n```"
-          },
-          "response": [
-            {
-              "name": "400 Bad Request — Invalid file extension",
-              "status": "Bad Request",
-              "code": 400,
-              "header": [
-                { "key": "Content-Type", "value": "application/json" }
-              ],
-              "body": "{\n  \"timestamp\": \"2026-04-12T11:49:00Z\",\n  \"status\": 400,\n  \"error\": \"BAD_REQUEST\",\n  \"message\": \"Uploaded file is not a valid SQL file.\",\n  \"path\": \"/api/v1/migrations/upload\"\n}"
-            }
-          ]
+            "description": "**API-03 — Invalid file type**\n\n**Expected:** `400 Bad Request` — `Uploaded file is not a valid SQL file.`"
+          }
         },
         {
           "name": "API-04 | Upload oversized file → 413 Payload Too Large",
@@ -142,37 +104,19 @@
             },
             "body": {
               "mode": "formdata",
-              "formdata": [
-                {
-                  "key": "file",
-                  "type": "file",
-                  "src": "",
-                  "description": "Attach any file larger than 10MB. The Spring Boot multipart limit will reject it before it reaches the controller."
-                }
-              ]
+              "formdata": [{ "key": "file", "type": "file", "src": "", "description": "Attach any file > 10MB" }]
             },
-            "description": "**API-04 — File exceeds 10MB limit**\n\nThe `application.properties` sets `spring.servlet.multipart.max-file-size=10MB`. When this is exceeded, Spring Boot throws `MaxUploadSizeExceededException` before the request even reaches the controller. The `GlobalExceptionHandler` catches it and returns a structured 413 response.\n\n**Expected response:** `413 Payload Too Large`\n```json\n{\n  \"timestamp\": \"<iso-timestamp>\",\n  \"status\": 413,\n  \"error\": \"PAYLOAD_TOO_LARGE\",\n  \"message\": \"File size exceeds the 10MB limit.\",\n  \"path\": \"/api/v1/migrations/upload\"\n}\n```"
-          },
-          "response": [
-            {
-              "name": "413 Payload Too Large — File exceeds 10MB",
-              "status": "Payload Too Large",
-              "code": 413,
-              "header": [
-                { "key": "Content-Type", "value": "application/json" }
-              ],
-              "body": "{\n  \"timestamp\": \"2026-04-12T11:50:00Z\",\n  \"status\": 413,\n  \"error\": \"PAYLOAD_TOO_LARGE\",\n  \"message\": \"File size exceeds the 10MB limit.\",\n  \"path\": \"/api/v1/migrations/upload\"\n}"
-            }
-          ]
+            "description": "**API-04 — File exceeds 10MB limit**\n\n**Expected:** `413 Payload Too Large`"
+          }
         }
       ]
     },
     {
-      "name": "Sprint 2 — Analysis Endpoints",
+      "name": "Sprint 2 — Compatibility Analysis",
       "description": "Endpoints to run and retrieve compatibility analysis (API-05 and API-06)",
       "item": [
         {
-          "name": "API-05 | Run Analysis",
+          "name": "API-05 | Run Analysis (POST)",
           "request": {
             "method": "POST",
             "header": [],
@@ -181,11 +125,11 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "migrations", "{{run_id}}", "analyze"]
             },
-            "description": "**API-05 — Run Analysis**\n\nRuns the compatibility analyzer for the given Migration Run ID."
+            "description": "**API-05 — Run Analysis**\n\nTriggers the `CompatibilityAnalyzer` for the given run. Detects `NUMBER`, `VARCHAR2`, `ROWNUM`, `SYSDATE`, sequences, and other Oracle-specifics.\n\n**Expected:** `201 Created` with severity counts and issues list."
           }
         },
         {
-          "name": "API-06 | Get Analysis",
+          "name": "API-06 | Get Cached Analysis (GET)",
           "request": {
             "method": "GET",
             "header": [],
@@ -194,7 +138,116 @@
               "host": ["{{base_url}}"],
               "path": ["api", "v1", "migrations", "{{run_id}}", "analysis"]
             },
-            "description": "**API-06 — Get Analysis**\n\nRetrieves the generated compatibility analysis report."
+            "description": "**API-06 — Get Analysis**\n\nRetrieves a previously persisted analysis report from PostgreSQL.\n\n**Expected:** `200 OK` with the report."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sprint 3 — Conversion Engine",
+      "description": "Convert Oracle SQL to PostgreSQL-compatible DDL (API-07 and API-08)",
+      "item": [
+        {
+          "name": "API-07 | Run Conversion (POST)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/convert",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "convert"]
+            },
+            "description": "**API-07 — Run Conversion**\n\nRuns `SqlConverter` over the raw Oracle SQL. Applies string-safe replacements: `NVL→COALESCE`, `NVL2→CASE`, `ROWNUM→LIMIT`, type aliases (`NUMBER→NUMERIC`, `VARCHAR2→VARCHAR`), `SYSDATE→CURRENT_TIMESTAMP`, sequence syntax, and adds review comments for un-automatable HIGH severity constructs.\n\n**Expected:** `201 Created` with `originalSql` and `convertedSql`."
+          }
+        },
+        {
+          "name": "API-08 | Get Converted Script (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/converted-script",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "converted-script"]
+            },
+            "description": "**API-08 — Get Converted Script**\n\nRetrieves the persisted PostgreSQL DDL as `text/plain`.\n\n**Expected:** `200 OK`, `Content-Type: text/plain`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sprint 5 — Validation Engine",
+      "description": "Run row-count, null-count, and data-type validation against target DB (API-09 and API-10)",
+      "item": [
+        {
+          "name": "API-09 | Run Validation (POST)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/validate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "validate"]
+            },
+            "description": "**API-09 — Run Validation**\n\nFor each table in the parsed schema, queries both source (Oracle mock) and target (PostgreSQL) for row counts. Returns a `ValidationResult` with per-table `TableValidationMetric` records.\n\n**Expected:** `201 Created` with `validationStatus` of `PASSED` or `WARNING`."
+          }
+        },
+        {
+          "name": "API-10 | Get Validation Result (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/validation",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "validation"]
+            },
+            "description": "**API-10 — Get Validation Result**\n\nRetrieves the persisted validation result and per-table metrics.\n\n**Expected:** `200 OK`."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sprint 6 — Report & Export",
+      "description": "Aggregated report and file export endpoints (API-11 and API-12)",
+      "item": [
+        {
+          "name": "API-11 | Get Full Aggregated Report (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/report",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "report"]
+            },
+            "description": "**API-11 — Get Full Aggregated Report**\n\nReturns a single `FullReportDto` JSON object aggregating:\n- The `MigrationRun` record (file name, status, table/column counts)\n- The `AnalysisReport` (severity counts + issues list, or `null` if not yet run)\n- The `ConvertedScript` (original and converted SQL, or `null` if not yet run)\n- The `ValidationResult` (status + per-table metrics, or `null` if not yet run)\n\n**Expected:** `200 OK` with a composite JSON body."
+          }
+        },
+        {
+          "name": "API-12a | Export PDF Report (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/export/pdf",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "export", "pdf"]
+            },
+            "description": "**API-12a — Export PDF Report**\n\nGenerates and streams a binary PDF report using OpenPDF. The file includes a page header (`Migration Playground - Official Report`) and auto-numbered page footer. Sections cover the run summary, analysis severity breakdown, and validation results.\n\n**Expected:** `200 OK`, `Content-Type: application/pdf`, `Content-Disposition: attachment; filename=report-<uuid>.pdf`."
+          }
+        },
+        {
+          "name": "API-12b | Export JSON Report (GET)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/v1/migrations/{{run_id}}/export/json",
+              "host": ["{{base_url}}"],
+              "path": ["api", "v1", "migrations", "{{run_id}}", "export", "json"]
+            },
+            "description": "**API-12b — Export JSON Report**\n\nStreams the same `FullReportDto` as a downloadable `.json` file.\n\n**Expected:** `200 OK`, `Content-Type: application/json`, `Content-Disposition: attachment; filename=report-<uuid>.json`."
           }
         }
       ]

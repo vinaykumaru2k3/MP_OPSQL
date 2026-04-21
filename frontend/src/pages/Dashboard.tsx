@@ -85,7 +85,10 @@ const Dashboard: React.FC = () => {
   };
 
   const handleExport = (type: 'pdf' | 'json') => {
-    window.location.href = `http://localhost:8080/api/v1/migrations/${runId}/export/${type}`;
+    if (!runId) return;
+    window.location.href = type === 'pdf'
+      ? migrationApi.exportPdfUrl(runId)
+      : migrationApi.exportJsonUrl(runId);
   };
 
   if (!runId) {

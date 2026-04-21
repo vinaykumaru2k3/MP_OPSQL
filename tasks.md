@@ -51,11 +51,11 @@ Follow this living breakdown of tasks aligned with the 6-week sprint plan define
   - [x] Implement `POST /api/v1/migrations/{id}/validate`
   - [x] Add Validation table and metric UI to the React frontend
 
-- [ ] **Sprint 6: Polish, Export, & Hardening**
-  - [ ] Implement `GET /api/v1/migrations/{id}/report` to return fully aggregated run record
-  - [ ] Implement `GET /api/v1/migrations/{id}/export/pdf` (Generate PDF blob)
-  - [ ] Implement `GET /api/v1/migrations/{id}/export/json` (File download)
-  - [ ] Polish React logic (Include split-view preview of Oracle vs Converted Postgres DB)
-  - [ ] Complete End-to-End Postman testing (API-01 to API-12)
-  - [ ] Source Audit: Remove any `System.out.println` or `printStackTrace`
-  - [ ] Ensure all local setup `docker-compose.yml` specs are working accurately
+- [x] **Sprint 6: Polish, Export, & Hardening** ✅ _Completed 2026-04-21_
+  - [x] Implement `GET /api/v1/migrations/{id}/report` to return fully aggregated run record
+  - [x] Implement `GET /api/v1/migrations/{id}/export/pdf` (Generate PDF blob via OpenPDF with header + footer)
+  - [x] Implement `GET /api/v1/migrations/{id}/export/json` (File download)
+  - [x] Polish React logic (Include split-view preview of Oracle vs Converted Postgres DB)
+  - [x] Complete End-to-End Postman testing (API-01 to API-12)
+  - [x] Source Audit: Remove any `System.out.println` or `printStackTrace` (confirmed clean)
+  - [x] Ensure all local setup `docker-compose.yml` specs are working accurately
