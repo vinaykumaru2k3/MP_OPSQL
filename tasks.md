@@ -36,3 +36,11 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [ ] **Formatting Downstream Rules**: Rewrite the linear string formatting behavior inside `SqlConverter` ensuring completely extracted structural environments compile correctly into DDL ordered statements (Sequences -> Base Tables -> Indexes -> Keys -> Views).
   - [ ] **Frontend Network Panel**: Append a secondary input form to `Home.tsx` isolating direct db-socket credentials with cleanly separated visual routing hooks.
   - [ ] **Testing Emulation**: Map testing routines against an Oracle XE Docker container testing authentic JDBC extractions comprehensively prior to rollout.
+
+## Phase 4: Production Deployment
+
+- [ ] **Sprint 11: Free-Tier Cloud Architecture**
+  - [ ] **Dockerisation**: Construct a multi-stage `Dockerfile` within the backend restricting JVM memory allocations (`-Xmx400m`) preventing Railway out-of-memory terminations.
+  - [ ] **Environment Injection**: Strip cleartext database references in `application.properties` implementing parameterised `${DB_URL}` routing placeholders.
+  - [ ] **CORS & Routing**: Reconfigure CORS policies passing dynamic `FRONTEND_URL` identifiers. Update frontend `migrationApi.ts` allowing dynamic `VITE_API_URL` routing mapping separated Vercel frontends to Railway backends.
+  - [ ] **CI/CD Deployment Pipelines**: Alter GitHub Actions extending deploy steps specific to `main` branch merging (`railway up` & `vercel --prod`), injecting token secrets automatically scaling the playground live to the web.
