@@ -42,7 +42,7 @@ Migration Playground solves this by accepting an Oracle `.sql` file and automati
 3. Assigning a severity level — `HIGH`, `MEDIUM`, or `LOW` — to each incompatibility
 4. Generating a converted PostgreSQL script with all detectable issues automatically rewritten
 5. Flagging constructs that require manual rewriting, such as PL/SQL packages and `CONNECT BY` hierarchical queries
-6. Optionally validating migrated data by comparing row counts, null counts, and data types between the source Oracle database and the target PostgreSQL database
+6. Validating the migration through a simulated, realistic data-engine comparing row counts, null counts, and data types
 7. Exporting the full analysis report as JSON or PDF
 
 **Who is this for:**
@@ -71,7 +71,7 @@ The application follows a strict layered architecture. No layer bypasses another
        |-- SqlParser              Tokenizes Oracle SQL into structured schema
        |-- CompatibilityAnalyzer  Detects incompatibilities and assigns severity
        |-- SqlConverter           Rewrites Oracle constructs to PostgreSQL equivalents
-       |-- ValidationService      Compares source Oracle DB vs target PostgreSQL DB
+       |-- ValidationService      Simulates validation metrics for prototype demonstrations
        |
   PostgreSQL Storage Layer  (Reports, runs, scripts, validation results)
 ```
@@ -137,12 +137,12 @@ migration-playground/
 |   |-- tailwind.config.js            Tailwind CSS configuration
 |   `-- package.json
 |-- sql/
-|   |-- schema.sql                    Full PostgreSQL schema (generated from Flyway scripts)
 |   `-- samples/                      Oracle SQL test files for parser and analyzer testing
 |-- Docs/                             Project specification and engineering guides
 |   |-- migration-playground-spec.docx
 |   |-- migration-companion.docx
 |   |-- migration-engineering-guide.docx
+|   |-- Sprint*_Codebase_Explained.md Sprint-by-sprint technical breakdowns
 |   `-- diagrams/                     Sprint workflow diagrams
 |-- tasks.md                          Sprint task checklist
 `-- README.md
@@ -162,7 +162,7 @@ Install and verify all of the following before proceeding.
 | PostgreSQL | 15+ | Storage layer |
 | Git | 2.x | Version control |
 | Postman | Latest | API testing |
-| Docker Desktop | Latest | Optional: Oracle XE container |
+| Docker Desktop | Latest | Optional: Manage PostgreSQL database via docker-compose |
 
 Verify installations:
 
@@ -235,11 +235,9 @@ npm start
 # Opens at http://localhost:3000
 ```
 
-### 4. Docker (Database & Emulation)
+### 4. Docker
 
-The `docker-compose.yml` provides the main PostgreSQL database for the backend. 
-
-In Sprint 5, we will add the Oracle XE container (`gvenzl/oracle-xe:21-slim`) to this file for live validation testing. Until then, it purely provides the PostgreSQL instance.
+The `docker-compose.yml` provides the main PostgreSQL database for the backend.
 
 ```bash
 # Start the database
@@ -298,7 +296,7 @@ All requests and responses use `application/json` unless noted. File uploads use
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/migrations/{id}/validate` | Compare source Oracle DB and target PostgreSQL DB. |
+| `POST` | `/migrations/{id}/validate` | Run validation metrics simulation. |
 
 ### Reports and Export
 
@@ -359,7 +357,7 @@ Applies string-substitution and context-aware rewriting to transform Oracle cons
 
 ### ValidationService (`service/ValidationService.java`)
 
-Connects to both the source Oracle database and the target PostgreSQL database using dynamic JDBC contexts. Performs per-table comparison of row counts, null counts per column, data type mappings, primary key integrity, and foreign key reference resolution.
+Provides a high-fidelity mock engine simulating enterprise data-volume comparisons for prototype and stakeholder demonstrations. Architecturally designed to be swapped with a real JDBC implementation for live database connections (row counts, null counts, data type mappings).
 
 ---
 
@@ -433,11 +431,8 @@ Flyway scripts are located at: `backend/src/main/resources/db/migration/`
 
 | Script | Description |
 |---|---|
-| `V1__initial_schema.sql` | Creates `migration_runs`, `analysis_reports`, `converted_scripts`, `validation_results` |
-| `V2__add_indexes.sql` | Performance indexes on `run_id`, `severity`, `created_at`, `row_match` |
-| `V3__seed_data.sql` | Sample completed migration run for local dev and demo purposes |
-| `V4__add_conversion_metadata.sql` | Adds `conversion_notes` and `requires_manual_review` to `converted_scripts` |
-| `V5__add_validation_extended_fields.sql` | Adds `source_null_counts`, `target_null_counts`, `pk_integrity_check`, `fk_integrity_check` to `validation_results` |
+| `V1__initial_schema.sql` | Creates `migration_runs`, `analysis_reports`, `converted_scripts` |
+| `V2__add_validation_tables.sql` | Creates `validation_results` and `table_validation_metrics` |
 
 **Flyway Rule:** Once a migration script has run on any environment, it is immutable. Never rename or modify committed migration files. To fix a past migration, create a new versioned forward script.
 
