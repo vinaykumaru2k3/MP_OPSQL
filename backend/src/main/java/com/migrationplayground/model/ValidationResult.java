@@ -1,15 +1,22 @@
 package com.migrationplayground.model;
 
-import jakarta.persistence.*;
-import jakarta.persistence.Table;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import lombok.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 import java.time.Instant;
 import java.util.List;
 import java.util.UUID;
 
 @Entity
-@Table(name = "validation_results")
+@jakarta.persistence.Table(name = "validation_results")
 @Getter
 @Setter
 @NoArgsConstructor
@@ -20,8 +27,6 @@ public class ValidationResult {
     @Id
     @Column(name = "migration_run_id")
     private UUID migrationRunId;
-
-
 
     @Column(name = "validation_status", nullable = false)
     private String validationStatus;

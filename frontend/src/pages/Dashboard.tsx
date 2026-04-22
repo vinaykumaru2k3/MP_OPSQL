@@ -42,7 +42,6 @@ const Dashboard: React.FC = () => {
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [script, setScript] = useState<ConvertedScript | null>(null);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
-  const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'analysis' | 'script' | 'validation'>('analysis');
@@ -165,7 +164,7 @@ const Dashboard: React.FC = () => {
             className="p-2 bg-white border border-[#e5e7eb] rounded-md text-[#6b7280] hover:text-[#1a1f2e] hover:border-[#374151] transition-colors"
             title="Refresh"
           >
-            <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin text-[#1a56db]' : ''}`} />
+            <RefreshCw className="h-4 w-4" />
           </button>
           {/* Exports */}
           <button

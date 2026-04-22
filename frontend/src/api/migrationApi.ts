@@ -49,14 +49,9 @@ export const migrationApi = {
     return response.data;
   },
 
-  getReport: async (id: string) => {
-    const response = await api.get(`/${id}/report`);
-    return response.data;
-  },
-
   exportPdfUrl: (id: string): string =>
-    `http://localhost:8080/api/v1/migrations/${id}/export/pdf`,
+    `${API_BASE_URL}/${id}/export/pdf`,
 
   exportJsonUrl: (id: string): string =>
-    `http://localhost:8080/api/v1/migrations/${id}/export/json`,
+    `${API_BASE_URL}/${id}/export/json`,
 };

@@ -9,10 +9,7 @@ import com.migrationplayground.repository.ValidationResultRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -28,11 +25,6 @@ public class ValidationService {
     private final MigrationRunRepository migrationRunRepository;
     private final ValidationResultRepository validationResultRepository;
     private final SqlParser sqlParser;
-    
-    // In a real scenario, we would have multiple JdbcTemplates or DataSources configured.
-    // For this playground, we'll use a single JdbcTemplate and mock the "source" behavior in tests.
-    // If the project doesn't have an Oracle DB to connect to, this serves as a template.
-    private final JdbcTemplate jdbcTemplate;
 
     public ValidationResultDto validateMigration(UUID migrationId) {
         if (validationResultRepository.existsById(migrationId)) {
