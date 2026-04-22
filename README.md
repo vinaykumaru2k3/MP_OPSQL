@@ -25,8 +25,7 @@ A full-stack enterprise application that automates the detection, analysis, and 
 - [Database Schema](#database-schema)
 - [Testing](#testing)
 - [Git Workflow](#git-workflow)
-- [Sprint Plan](#sprint-plan)
-- [Limitations and Known Gaps](#limitations-and-known-gaps)
+- [Known Limitations](#known-limitations)
 - [Contributing](#contributing)
 
 ---
@@ -42,7 +41,7 @@ Migration Playground solves this by accepting an Oracle `.sql` file and automati
 3. Assigning a severity level — `HIGH`, `MEDIUM`, or `LOW` — to each incompatibility
 4. Generating a converted PostgreSQL script with all detectable issues automatically rewritten
 5. Flagging constructs that require manual rewriting, such as PL/SQL packages and `CONNECT BY` hierarchical queries
-6. Optionally validating migrated data by comparing row counts, null counts, and data types between the source Oracle database and the target PostgreSQL database
+6. Validating the migration through a simulated, realistic data-engine comparing row counts, null counts, and data types
 7. Exporting the full analysis report as JSON or PDF
 
 **Who is this for:**
@@ -71,7 +70,7 @@ The application follows a strict layered architecture. No layer bypasses another
        |-- SqlParser              Tokenizes Oracle SQL into structured schema
        |-- CompatibilityAnalyzer  Detects incompatibilities and assigns severity
        |-- SqlConverter           Rewrites Oracle constructs to PostgreSQL equivalents
-       |-- ValidationService      Compares source Oracle DB vs target PostgreSQL DB
+       |-- ValidationService      Simulates validation metrics for prototype demonstrations
        |
   PostgreSQL Storage Layer  (Reports, runs, scripts, validation results)
 ```
@@ -97,8 +96,10 @@ The application follows a strict layered architecture. No layer bypasses another
 | Schema Management | Flyway |
 | Logging | SLF4J with Logback |
 | Testing | JUnit 5, Mockito, JaCoCo |
-| Frontend Language | JavaScript (Node 18 LTS) |
-| Frontend Framework | React |
+| Frontend Language | TypeScript (Node 18 LTS) |
+| Frontend Framework | React + Vite |
+| UI & Styling | Tailwind CSS |
+| Icons | Lucide React |
 | HTTP Client | Axios |
 | File Upload | react-dropzone |
 | Charts | Recharts |
@@ -126,16 +127,21 @@ migration-playground/
 |   |   `-- db/migration/             Flyway versioned scripts (V1 through V5)
 |   |-- src/test/                     JUnit 5 unit tests
 |   `-- pom.xml
-|-- frontend/                         React project (Sprint 4+)
+|-- frontend/                         React project
 |   |-- src/
+|   |   |-- api/                      Axios API client connecting to backend
+|   |   |-- components/               Shared UI components and app Layout
+|   |   |-- pages/                    Home and Dashboard views
+|   |   `-- types/                    TypeScript interfaces mapping to DTOs
+|   |-- tailwind.config.js            Tailwind CSS configuration
 |   `-- package.json
 |-- sql/
-|   |-- schema.sql                    Full PostgreSQL schema (generated from Flyway scripts)
 |   `-- samples/                      Oracle SQL test files for parser and analyzer testing
 |-- Docs/                             Project specification and engineering guides
 |   |-- migration-playground-spec.docx
 |   |-- migration-companion.docx
 |   |-- migration-engineering-guide.docx
+|   |-- Sprint*_Codebase_Explained.md Sprint-by-sprint technical breakdowns
 |   `-- diagrams/                     Sprint workflow diagrams
 |-- tasks.md                          Sprint task checklist
 `-- README.md
@@ -155,7 +161,7 @@ Install and verify all of the following before proceeding.
 | PostgreSQL | 15+ | Storage layer |
 | Git | 2.x | Version control |
 | Postman | Latest | API testing |
-| Docker Desktop | Latest | Optional: Oracle XE container |
+| Docker Desktop | Latest | Optional: Manage PostgreSQL database via docker-compose |
 
 Verify installations:
 
@@ -223,16 +229,13 @@ logging.file.name=logs/migration-tool.log
 ```bash
 cd frontend
 npm install
-echo 'REACT_APP_API_BASE_URL=http://localhost:8080/api/v1' > .env.local
-npm start
-# Opens at http://localhost:3000
+npm run dev
+# Opens at http://localhost:5173
 ```
 
-### 4. Docker (Database & Emulation)
+### 4. Docker
 
-The `docker-compose.yml` provides the main PostgreSQL database for the backend. 
-
-In Sprint 5, we will add the Oracle XE container (`gvenzl/oracle-xe:21-slim`) to this file for live validation testing. Until then, it purely provides the PostgreSQL instance.
+The `docker-compose.yml` provides the main PostgreSQL database for the backend.
 
 ```bash
 # Start the database
@@ -254,7 +257,6 @@ docker-compose down
 | `SERVER_PORT` | `8080` | Spring Boot port | No |
 | `MAX_FILE_SIZE` | `10MB` | Max SQL file upload size | No |
 | `LOG_LEVEL` | `DEBUG` | Application log level | No |
-| `REACT_APP_API_BASE_URL` | `http://localhost:8080/api/v1` | Frontend API base URL | Yes (Frontend) |
 
 ---
 
@@ -291,7 +293,7 @@ All requests and responses use `application/json` unless noted. File uploads use
 
 | Method | Endpoint | Description |
 |---|---|---|
-| `POST` | `/migrations/{id}/validate` | Compare source Oracle DB and target PostgreSQL DB. |
+| `POST` | `/migrations/{id}/validate` | Run validation metrics simulation. |
 
 ### Reports and Export
 
@@ -352,7 +354,7 @@ Applies string-substitution and context-aware rewriting to transform Oracle cons
 
 ### ValidationService (`service/ValidationService.java`)
 
-Connects to both the source Oracle database and the target PostgreSQL database using dynamic JDBC contexts. Performs per-table comparison of row counts, null counts per column, data type mappings, primary key integrity, and foreign key reference resolution.
+Provides a high-fidelity mock engine simulating enterprise data-volume comparisons for prototype and stakeholder demonstrations. Architecturally designed to be swapped with a real JDBC implementation for live database connections (row counts, null counts, data type mappings).
 
 ---
 
@@ -426,11 +428,8 @@ Flyway scripts are located at: `backend/src/main/resources/db/migration/`
 
 | Script | Description |
 |---|---|
-| `V1__initial_schema.sql` | Creates `migration_runs`, `analysis_reports`, `converted_scripts`, `validation_results` |
-| `V2__add_indexes.sql` | Performance indexes on `run_id`, `severity`, `created_at`, `row_match` |
-| `V3__seed_data.sql` | Sample completed migration run for local dev and demo purposes |
-| `V4__add_conversion_metadata.sql` | Adds `conversion_notes` and `requires_manual_review` to `converted_scripts` |
-| `V5__add_validation_extended_fields.sql` | Adds `source_null_counts`, `target_null_counts`, `pk_integrity_check`, `fk_integrity_check` to `validation_results` |
+| `V1__initial_schema.sql` | Creates `migration_runs`, `analysis_reports`, `converted_scripts` |
+| `V2__add_validation_tables.sql` | Creates `validation_results` and `table_validation_metrics` |
 
 **Flyway Rule:** Once a migration script has run on any environment, it is immutable. Never rename or modify committed migration files. To fix a past migration, create a new versioned forward script.
 
@@ -523,33 +522,15 @@ This project follows the Conventional Commits specification.
 
 ---
 
-## Sprint Plan
+## Known Limitations
 
-The project is built across six one-week sprints. Backend is implemented first; the UI is introduced in Sprint 4.
-
-| Sprint | Week | Goals | Deliverables |
-|---|---|---|---|
-| Sprint 1 | Week 1 | Project scaffold, file upload, SQL parsing | Spring Boot project, upload API, `SqlParser`, parsed JSON output |
-| Sprint 2 | Week 2 | Compatibility analysis and issue detection | `CompatibilityAnalyzer`, `analysis_reports` table, analysis endpoint |
-| Sprint 3 | Week 3 | Conversion engine, PostgreSQL script generation | `SqlConverter`, `converted_scripts` table, conversion endpoint |
-| Sprint 4 | Week 4 | Database report storage, React UI scaffold | Report persistence, React file upload and analysis display |
-| Sprint 5 | Week 5 | Validation module, comparison logic | `ValidationService`, `validation_results` table, validation endpoint |
-| Sprint 6 | Week 6 | UI polish, PDF/JSON export, edge case hardening | Export endpoints, refined UI, logging audit, Postman collection |
-
-Current status: **Sprint 1 complete.** `SqlParser` implemented and passing 11/11 unit tests.
-
----
-
-## Limitations and Known Gaps
-
-| Limitation | Detail |
-|---|---|
-| No authentication | Version 1 has no auth. All endpoints are open. Add Spring Security + JWT before production deployment. |
-| PL/SQL conversion | Full PL/SQL block conversion is not automated. Stored procedures, packages, and triggers are flagged as `HIGH` severity and require manual rewriting. |
-| Chained NVL calls | `NVL(NVL(a, b), c)` requires recursive replacement logic, not yet implemented. |
-| ROWNUM context-sensitivity | `ROWNUM` in subqueries versus top-level `WHERE` requires different conversion logic. Initial implementation handles the basic case only. |
-| No pagination | All list endpoints return full result sets in v1. |
-| Oracle XE for validation | Live validation testing requires the Oracle XE Docker container. Only needed from Sprint 5 onward. |
+| Limitation | Detail | Recommended Action |
+|---|---|---|
+| **Authentication Enforcement** | Application endpoints are currently open without user authentication. | Implement Spring Security with JWT before exposing to a live production network. |
+| **PL/SQL Block Conversion** | Full PL/SQL block conversion is not automated. Stored procedures, packages, and triggers are flagged `HIGH` severity. | Manual architectural redesign and code migration is required for PL/SQL blocks. |
+| **Complex Function Nesting** | Chained Oracle functions like `NVL(NVL(a, b), c)` require recursive replacement logic which is not fully supported. | Break down complex nested Oracle functions into standard SQL prior to conversion. |
+| **ROWNUM Sensitivity** | `ROWNUM` inside complex nested subqueries versus top-level `WHERE` conditions require different translation paradigms. | The converter handles basic `LIMIT` cases; complex implicit pagination must be manually verified. |
+| **Database Validation** | Validation currently mocks data integrity checks using simulated data volumes. | To run live production verification, replace the mock logic in `ValidationService` with a dynamic `JdbcTemplate` connecting to a live Oracle target. |
 
 ---
 

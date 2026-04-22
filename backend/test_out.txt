@@ -1,0 +1,74 @@
+﻿[INFO] Scanning for projects...
+[INFO] 
+[INFO] ------------------< com.migrationplayground:backend >-------------------
+[INFO] Building migration-playground 1.0.0-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] 
+[INFO] --- clean:3.3.2:clean (default-clean) @ backend ---
+[INFO] Deleting C:\Users\vinay kumar\Desktop\Migration_playground\backend\target
+[INFO] 
+[INFO] --- jacoco:0.8.11:prepare-agent (default) @ backend ---
+[INFO] argLine set to "-javaagent:C:\\Users\\vinay kumar\\.m2\\repository\\org\\jacoco\\org.jacoco.agent\\0.8.11\\org.jacoco.agent-0.8.11-runtime.jar=destfile=C:\\Users\\vinay kumar\\Desktop\\Migration_playground\\backend\\target\\jacoco.exec"
+[INFO] 
+[INFO] --- resources:3.3.1:resources (default-resources) @ backend ---
+[INFO] Copying 1 resource from src\main\resources to target\classes
+[INFO] Copying 2 resources from src\main\resources to target\classes
+[INFO] 
+[INFO] --- compiler:3.11.0:compile (default-compile) @ backend ---
+[INFO] Changes detected - recompiling the module! :source
+[INFO] Compiling 29 source files with javac [debug release 17] to target\classes
+[INFO] 
+[INFO] --- resources:3.3.1:testResources (default-testResources) @ backend ---
+[INFO] skip non existing resourceDirectory C:\Users\vinay kumar\Desktop\Migration_playground\backend\src\test\resources
+[INFO] 
+[INFO] --- compiler:3.11.0:testCompile (default-testCompile) @ backend ---
+[INFO] Changes detected - recompiling the module! :dependency
+[INFO] Compiling 4 source files with javac [debug release 17] to target\test-classes
+[INFO] 
+[INFO] --- surefire:3.1.2:test (default-test) @ backend ---
+[INFO] Using auto detected provider org.apache.maven.surefire.junitplatform.JUnitPlatformProvider
+[INFO] 
+[INFO] -------------------------------------------------------
+[INFO]  T E S T S
+[INFO] -------------------------------------------------------
+[INFO] Running com.migrationplayground.analyzer.CompatibilityAnalyzerTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.276 s -- in com.migrationplayground.analyzer.CompatibilityAnalyzerTest
+[INFO] Running com.migrationplayground.analyzer.SqlConverterTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.081 s -- in com.migrationplayground.analyzer.SqlConverterTest
+[INFO] Running com.migrationplayground.parser.SqlParserTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.278 s -- in com.migrationplayground.parser.SqlParserTest
+[INFO] Running com.migrationplayground.service.ValidationServiceTest
+mvn : WARNING: A Java agent has been loaded dynamically (C:\Users\vinay 
+kumar\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.12\byte-buddy-agent-1.14.12.jar)
+At line:1 char:1
++ mvn clean test -DskipITs 2>&1 | Out-File -Encoding utf8 test_out.txt; ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (WARNING: A Java...nt-1.14.12.jar):String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning
+WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information
+WARNING: Dynamic loading of agents will be disallowed by default in a future release
+Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap 
+classpath has been appended
+15:25:23.114 [main] INFO com.migrationplayground.service.ValidationService -- Starting validation for migration ID: f4bbb0ac-8279-4cd9-9e58-63af70e709ab
+15:25:23.146 [main] INFO com.migrationplayground.service.ValidationService -- Validation completed for run f4bbb0ac-8279-4cd9-9e58-63af70e709ab. Status: PASSED. Matched: 1/1
+15:25:23.194 [main] INFO com.migrationplayground.service.ValidationService -- Starting validation for migration ID: fb63b54b-6b13-4565-938a-9400f5572f6e
+15:25:23.197 [main] INFO com.migrationplayground.service.ValidationService -- Validation completed for run fb63b54b-6b13-4565-938a-9400f5572f6e. Status: WARNING. Matched: 0/1
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.875 s -- in com.migrationplayground.service.ValidationServiceTest
+[INFO] 
+[INFO] Results:
+[INFO] 
+[INFO] Tests run: 48, Failures: 0, Errors: 0, Skipped: 0
+[INFO] 
+[INFO] 
+[INFO] --- jacoco:0.8.11:report (report) @ backend ---
+[INFO] Loading execution data file C:\Users\vinay kumar\Desktop\Migration_playground\backend\target\jacoco.exec
+[INFO] Analyzed bundle 'migration-playground' with 39 classes
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  18.096 s
+[INFO] Finished at: 2026-04-21T15:25:24+05:30
+[INFO] ------------------------------------------------------------------------

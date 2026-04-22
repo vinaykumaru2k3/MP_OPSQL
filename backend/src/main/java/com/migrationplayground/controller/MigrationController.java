@@ -2,8 +2,11 @@ package com.migrationplayground.controller;
 
 import com.migrationplayground.dto.AnalysisReportDto;
 import com.migrationplayground.dto.ConvertedScriptDto;
+import com.migrationplayground.dto.FullReportDto;
+import com.migrationplayground.dto.ValidationResultDto;
 import com.migrationplayground.model.MigrationRun;
 import com.migrationplayground.service.SchemaService;
+import com.migrationplayground.service.ValidationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,9 +19,11 @@ import java.util.UUID;
 public class MigrationController {
 
     private final SchemaService schemaService;
+    private final ValidationService validationService;
 
-    public MigrationController(SchemaService schemaService) {
+    public MigrationController(SchemaService schemaService, ValidationService validationService) {
         this.schemaService = schemaService;
+        this.validationService = validationService;
     }
 
     @PostMapping("/upload")
@@ -50,9 +55,43 @@ public class MigrationController {
 
     @GetMapping("/{id}/converted-script")
     public ResponseEntity<String> getConvertedScript(@PathVariable("id") UUID id) {
-        ConvertedScriptDto script = schemaService.getConvertedScript(id);
+        ConvertedScriptDto scriptDto = schemaService.getConvertedScript(id);
         return ResponseEntity.ok()
                 .header("Content-Type", "text/plain")
-                .body(script.getConvertedSql());
+                .body(scriptDto.getConvertedSql());
+    }
+
+    @PostMapping("/{id}/validate")
+    public ResponseEntity<ValidationResultDto> validate(@PathVariable("id") UUID id) {
+        ValidationResultDto result = validationService.validateMigration(id);
+        return new ResponseEntity<>(result, HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}/validation")
+    public ResponseEntity<ValidationResultDto> getValidation(@PathVariable("id") UUID id) {
+        ValidationResultDto result = validationService.getValidationResult(id);
+        return new ResponseEntity<>(result, HttpStatus.OK);
+    }
+
+    @GetMapping("/{id}/report")
+    public ResponseEntity<FullReportDto> getFullReport(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok(schemaService.getFullReport(id));
+    }
+
+    @GetMapping("/{id}/export/pdf")
+    public ResponseEntity<byte[]> exportPdf(@PathVariable("id") UUID id) {
+        byte[] pdfBytes = schemaService.generatePdfReport(id);
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report-" + id + ".pdf")
+                .contentType(org.springframework.http.MediaType.APPLICATION_PDF)
+                .body(pdfBytes);
+    }
+
+    @GetMapping("/{id}/export/json")
+    public ResponseEntity<FullReportDto> exportJson(@PathVariable("id") UUID id) {
+        return ResponseEntity.ok()
+                .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=report-" + id + ".json")
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .body(schemaService.getFullReport(id));
     }
 }
