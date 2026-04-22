@@ -81,6 +81,7 @@ const Dashboard: React.FC = () => {
         setScript(data);
         setConvertingScreen(false);
       }, 2000);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || 'Conversion failed.');
     } finally { setActionLoading(null); }
@@ -93,6 +94,7 @@ const Dashboard: React.FC = () => {
       const data = await migrationApi.validate(runId);
       setValidation(data);
       setActiveTab('validation');
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || 'Validation failed.');
     } finally { setActionLoading(null); }

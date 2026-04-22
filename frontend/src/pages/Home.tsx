@@ -61,6 +61,7 @@ const Home: React.FC = () => {
       const result = await migrationApi.upload(file);
       setSuccess(result);
       setTimeout(() => navigate(`/dashboard?runId=${result.id}`), 1500);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setError(err.response?.data?.message || 'Failed to upload and parse SQL file.');
     } finally {

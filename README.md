@@ -229,9 +229,8 @@ logging.file.name=logs/migration-tool.log
 ```bash
 cd frontend
 npm install
-echo 'REACT_APP_API_BASE_URL=http://localhost:8080/api/v1' > .env.local
-npm start
-# Opens at http://localhost:3000
+npm run dev
+# Opens at http://localhost:5173
 ```
 
 ### 4. Docker
@@ -258,7 +257,6 @@ docker-compose down
 | `SERVER_PORT` | `8080` | Spring Boot port | No |
 | `MAX_FILE_SIZE` | `10MB` | Max SQL file upload size | No |
 | `LOG_LEVEL` | `DEBUG` | Application log level | No |
-| `REACT_APP_API_BASE_URL` | `http://localhost:8080/api/v1` | Frontend API base URL | Yes (Frontend) |
 
 ---
 
