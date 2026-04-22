@@ -22,3 +22,17 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [ ] **Frontend Modernization**: Refactor out manual `useState`/`useEffect` logic within `Dashboard.tsx` by integrating React Query (TanStack) to handle robust data-caching, fetch deduplication, and structured retries.
   - [ ] **Data Diff UI**: Construct a Migration History Diff view on the frontend that natively surfaces differential updates when a user uploads two sequential iterations of the same SQL file.
   - [ ] **Live Validation DB**: Evolve the mock `ValidationService` to a dual-JDBC connector. Connect the backend logic to the local containerized PostgreSQL instance alongside an emulated Oracle instance for live production data verification.
+
+## Phase 3: Live Schema Extraction Engine
+
+- [ ] **Sprint 9: Dynamic Oracle JDBC Extractors**
+  - [ ] **Maven Configurations**: Import the `ojdbc11` driver to the backend `pom.xml`.
+  - [ ] **Data Hierarchy Upgrades**: Extend the `ParsedSchema` central models to encapsulate Oracle Indexes, Views, PK/FK Constraints, Stored Procedures, Triggers, and Sequences natively.
+  - [ ] **Connector Configuration**: Sculpt the transient `OracleConnectionConfig` DTO handling host schemas while strictly enforcing ephemeral memory states for passwords.
+  - [ ] **Extraction Engine**: Blueprint the `LiveSchemaExtractor` to systematically scan dictionaries (`ALL_TABLES`, `ALL_VIEWS`, `ALL_SOURCE`, etc.) dynamically translating object records straight into `ParsedSchema`.
+  
+- [ ] **Sprint 10: Connectivity Interface & Extracted Formatter**
+  - [ ] **API Controller Node**: Configure the new backend router block `POST /api/v1/migrations/connect` returning standard `MigrationRun` formats bridging Oracle data securely to AST/Analyzer pipelines.
+  - [ ] **Formatting Downstream Rules**: Rewrite the linear string formatting behavior inside `SqlConverter` ensuring completely extracted structural environments compile correctly into DDL ordered statements (Sequences -> Base Tables -> Indexes -> Keys -> Views).
+  - [ ] **Frontend Network Panel**: Append a secondary input form to `Home.tsx` isolating direct db-socket credentials with cleanly separated visual routing hooks.
+  - [ ] **Testing Emulation**: Map testing routines against an Oracle XE Docker container testing authentic JDBC extractions comprehensively prior to rollout.
