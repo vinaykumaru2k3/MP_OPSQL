@@ -47,6 +47,7 @@ const Dashboard: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'analysis' | 'script' | 'validation'>('analysis');
   const [filter, setFilter] = useState('ALL');
+  const [convertingScreen, setConvertingScreen] = useState(false);
 
   useEffect(() => {
     if (runId) {
@@ -75,8 +76,12 @@ const Dashboard: React.FC = () => {
     setActionLoading('convert');
     try {
       const data = await migrationApi.convert(runId);
-      setScript(data);
+      setConvertingScreen(true);
       setActiveTab('script');
+      setTimeout(() => {
+        setScript(data);
+        setConvertingScreen(false);
+      }, 2000);
     } catch (err: any) {
       setError(err.response?.data?.message || 'Conversion failed.');
     } finally { setActionLoading(null); }
@@ -351,7 +356,36 @@ const Dashboard: React.FC = () => {
             {/* ─── Script / Split-view Tab ─── */}
             {activeTab === 'script' && (
               <div className="h-full flex flex-col">
-                {script ? (
+                {convertingScreen ? (
+                  <div className="flex flex-col items-center justify-center h-full py-20 select-none">
+                    {/* Animated ring */}
+                    <div className="relative w-20 h-20 mb-6">
+                      <div className="absolute inset-0 rounded-full border-4 border-[#e5e7eb]" />
+                      <div
+                        className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#1a56db] animate-spin"
+                        style={{ animationDuration: '0.8s' }}
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center">
+                        <FileCode className="h-7 w-7 text-[#1a56db]" />
+                      </div>
+                    </div>
+                    <p className="text-sm font-semibold text-[#1a1f2e] mb-1">Converting to PostgreSQL…</p>
+                    <p className="text-xs text-[#6b7280]">Rewriting Oracle-specific syntax</p>
+                    {/* Progress bar */}
+                    <div className="mt-6 w-56 h-1.5 bg-[#e5e7eb] rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-[#1a56db] rounded-full"
+                        style={{ animation: 'convertProgress 2s ease-in-out forwards' }}
+                      />
+                    </div>
+                    <style>{`
+                      @keyframes convertProgress {
+                        from { width: 0%; }
+                        to   { width: 100%; }
+                      }
+                    `}</style>
+                  </div>
+                ) : script ? (
                   <>
                     <div className="flex items-center justify-between mb-3">
                       <p className="text-xs text-[#6b7280] font-medium">Side-by-side SQL Comparison</p>
