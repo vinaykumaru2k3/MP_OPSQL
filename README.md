@@ -25,8 +25,7 @@ A full-stack enterprise application that automates the detection, analysis, and 
 - [Database Schema](#database-schema)
 - [Testing](#testing)
 - [Git Workflow](#git-workflow)
-- [Sprint Plan](#sprint-plan)
-- [Limitations and Known Gaps](#limitations-and-known-gaps)
+- [Known Limitations](#known-limitations)
 - [Contributing](#contributing)
 
 ---
@@ -525,33 +524,15 @@ This project follows the Conventional Commits specification.
 
 ---
 
-## Sprint Plan
+## Known Limitations
 
-The project is built across six one-week sprints. Backend is implemented first; the UI is introduced in Sprint 4.
-
-| Sprint | Week | Goals | Deliverables |
-|---|---|---|---|
-| Sprint 1 | Week 1 | Project scaffold, file upload, SQL parsing | Spring Boot project, upload API, `SqlParser`, parsed JSON output |
-| Sprint 2 | Week 2 | Compatibility analysis and issue detection | `CompatibilityAnalyzer`, `analysis_reports` table, analysis endpoint |
-| Sprint 3 | Week 3 | Conversion engine, PostgreSQL script generation | `SqlConverter`, `converted_scripts` table, conversion endpoint |
-| Sprint 4 | Week 4 | Database report storage, React UI scaffold | Report persistence, React file upload and analysis display |
-| Sprint 5 | Week 5 | Validation module, comparison logic | `ValidationService`, `validation_results` table, validation endpoint |
-| Sprint 6 | Week 6 | UI polish, PDF/JSON export, edge case hardening | Export endpoints, refined UI, logging audit, Postman collection |
-
-Current status: **Sprint 6 complete.** All deliverables are implemented, including full export functionality, a polished UI with a high-fidelity validation simulation, and a full testing suite.
-
----
-
-## Limitations and Known Gaps
-
-| Limitation | Detail |
-|---|---|
-| No authentication | Version 1 has no auth. All endpoints are open. Add Spring Security + JWT before production deployment. |
-| PL/SQL conversion | Full PL/SQL block conversion is not automated. Stored procedures, packages, and triggers are flagged as `HIGH` severity and require manual rewriting. |
-| Chained NVL calls | `NVL(NVL(a, b), c)` requires recursive replacement logic, not yet implemented. |
-| ROWNUM context-sensitivity | `ROWNUM` in subqueries versus top-level `WHERE` requires different conversion logic. Initial implementation handles the basic case only. |
-| No pagination | All list endpoints return full result sets in v1. |
-| Database Validation Simulation | Because connecting to a real enterprise Oracle instance is impractical in the playground environment, the `ValidationService` employs realistic data-volume simulations to mock compatibility warnings. |
+| Limitation | Detail | Recommended Action |
+|---|---|---|
+| **Authentication Enforcement** | Application endpoints are currently open without user authentication. | Implement Spring Security with JWT before exposing to a live production network. |
+| **PL/SQL Block Conversion** | Full PL/SQL block conversion is not automated. Stored procedures, packages, and triggers are flagged `HIGH` severity. | Manual architectural redesign and code migration is required for PL/SQL blocks. |
+| **Complex Function Nesting** | Chained Oracle functions like `NVL(NVL(a, b), c)` require recursive replacement logic which is not fully supported. | Break down complex nested Oracle functions into standard SQL prior to conversion. |
+| **ROWNUM Sensitivity** | `ROWNUM` inside complex nested subqueries versus top-level `WHERE` conditions require different translation paradigms. | The converter handles basic `LIMIT` cases; complex implicit pagination must be manually verified. |
+| **Database Validation** | Validation currently mocks data integrity checks using simulated data volumes. | To run live production verification, replace the mock logic in `ValidationService` with a dynamic `JdbcTemplate` connecting to a live Oracle target. |
 
 ---
 
