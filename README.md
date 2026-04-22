@@ -97,8 +97,10 @@ The application follows a strict layered architecture. No layer bypasses another
 | Schema Management | Flyway |
 | Logging | SLF4J with Logback |
 | Testing | JUnit 5, Mockito, JaCoCo |
-| Frontend Language | JavaScript (Node 18 LTS) |
-| Frontend Framework | React |
+| Frontend Language | TypeScript (Node 18 LTS) |
+| Frontend Framework | React + Vite |
+| UI & Styling | Tailwind CSS |
+| Icons | Lucide React |
 | HTTP Client | Axios |
 | File Upload | react-dropzone |
 | Charts | Recharts |
@@ -126,8 +128,13 @@ migration-playground/
 |   |   `-- db/migration/             Flyway versioned scripts (V1 through V5)
 |   |-- src/test/                     JUnit 5 unit tests
 |   `-- pom.xml
-|-- frontend/                         React project (Sprint 4+)
+|-- frontend/                         React project
 |   |-- src/
+|   |   |-- api/                      Axios API client connecting to backend
+|   |   |-- components/               Shared UI components and app Layout
+|   |   |-- pages/                    Home and Dashboard views
+|   |   `-- types/                    TypeScript interfaces mapping to DTOs
+|   |-- tailwind.config.js            Tailwind CSS configuration
 |   `-- package.json
 |-- sql/
 |   |-- schema.sql                    Full PostgreSQL schema (generated from Flyway scripts)
