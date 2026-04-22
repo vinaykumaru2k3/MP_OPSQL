@@ -23,3 +23,7 @@ logs/
 # Environment / secrets
 .env
 *.env.local
+
+# Node
+node_modules/
+dist/
