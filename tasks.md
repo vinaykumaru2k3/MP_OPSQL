@@ -1,61 +1,38 @@
-# Migration Playground Development Checklist
+# Migration Playground - Phase 2 Development Checklist
 
-Follow this living breakdown of tasks aligned with the 6-week sprint plan defined in the engineering specs. Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
+Following the completion of Sprints 1-6, this document details Phase 2. Phase 2 prioritizes hardening, security, refactoring, and addressing architectural limitations before expanding into comprehensive enterprise features.
 
-- [x] **Sprint 1: Project Scaffold & Parser Engine** ✅ _Completed 2026-04-12_
-  - [x] Initialize Spring Boot backend project (Dependencies: `web`, `data-jpa`, `postgresql`, `validation`, `lombok`)
-  - [x] Configure `application.properties` (PostgreSQL config, 10MB multipart size limits, SLF4J logging)
-  - [x] Implement `GlobalExceptionHandler` per the standard error response schema
-  - [x] Create domain models (`Table`, `Column`, `Constraint`, `MigrationRun`)
-  - [x] Implement `POST /api/v1/migrations/upload` to handle multipart SQL files
-  - [x] Implement `SqlParser.java` using regex to extract CREATE TABLE blocks, columns, and constraints
-  - [x] Write `SqlParserTest` achieving 70%+ JaCoCo coverage (Cases P-01 to P-11)
-  - [x] Initialize `MigrationPlayground.postman_collection.json` with upload endpoints API-01 to API-04
-  - [x] Provide sample Oracle SQL files for tests `sql/samples/sample_01_basic_ddl.sql`
-  - [x] Create `docker-compose.yml` for local PostgreSQL database instance
+Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
 
-- [x] **Sprint 2: Compatibility Analyzer** ✅ _Completed_
-  - [x] Create `AnalysisReport` model and DTO
-  - [x] Implement `CompatibilityAnalyzer.java` with the full conversion rules map (Data Types, Functions, Subqueries, PL/SQL)
-  - [x] Ensure HIGH, MEDIUM, LOW severity tracking is correctly applied
-  - [x] Write `CompatibilityAnalyzerTest.java` (Cases A-01 to A-15)
-  - [x] Implement `POST /api/v1/migrations/{id}/analyze`
-  - [x] Implement `GET /api/v1/migrations/{id}/analysis`
-  - [x] Add analyzer endpoints to Postman collection
+## Phase 2: System Hardening & Enterprise Upgrades
 
-- [x] **Sprint 3: Conversion Engine** ✅ _Completed 2026-04-13_
-  - [x] Create `ConvertedScript` model and DTO
-  - [x] Implement `SqlConverter.java` for string replacements and context-aware transformations (`NVL` -> `COALESCE`, `NVL2` -> `CASE`, `ROWNUM` -> `LIMIT`)
-  - [x] Prevent auto-conversion on HIGH-severity unimplemented constructs (add manual review comments instead)
-  - [x] Implement String Literal Masking for Enterprise Resilience (Hardening: `SqlParser`, `CompatibilityAnalyzer`, `SqlConverter`)
-  - [x] Write `SqlConverterTest` (Cases CV-01 to CV-18)
-  - [x] Implement `POST /api/v1/migrations/{id}/convert` endpoint
-  - [x] Implement `GET /api/v1/migrations/{id}/converted-script` (returns `text/plain` SQL)
-  - [x] Add conversion endpoints to Postman collection
+- [ ] **Sprint 7: Security Settings, Bug Fixes & Refactoring (Quality Focus)**
+  - [ ] **Security**: Remove plaintext database credentials from `application.properties`. Use environment variable placeholders (e.g., `${DB_URL}`).
+  - [ ] **Security**: Add `application.properties` to `.gitignore` and create an `application.properties.example` template.
+  - [ ] **Cleanup**: Add backend build output artifacts (`compile_out.txt`, `test_out.txt`) to `.gitignore`.
+  - [ ] **CI Quality Gate**: Update `pom.xml` to include JaCoCo test coverage enforcement (fail build if below 70%).
+  - [ ] **Refactoring**: Break down the `SchemaService` God Class into `MigrationRunService` (lifecycle management) and `ReportService` (aggregation & PDF/JSON exports). Retain `SchemaService` purely for orchestration.
+  - [ ] **Validation Bug**: Fix the idempotency check in `ValidationService` (`existsById(migrationId)`) to correctly correspond to the `ValidationResult` primary key configuration.
+  - [ ] **Parser Fix**: Update `SqlConverter` string replacement for `DATE` to use targeted regex ensuring it only applies to column definitions rather than sweeping replacements across constraints and string literals.
+  - [ ] **Frontend Robustness**: Address silent error swallowing in `Dashboard.tsx` (`getAnalysis` failing then falling back to `analyze`). Expose correct failure states explicitly to the UI.
 
-- [x] **Sprint 4: Database Persistence & React UI Scaffold** ✅ _Completed 2026-04-13_
-  - [x] Add Flyway dependency and script `V1__initial_schema.sql`
-  - [x] Integrate Repositories: `MigrationRunRepository`, `AnalysisReportRepository`, `ConvertedScriptRepository`
-  - [x] Refactor Services to securely persist outputs in PostgreSQL
-  - [x] **Technical Debt:** Remove the temporary in-memory SQL cache from `SchemaService` (added in Sprint 2) and persist raw files to PostgreSQL
-  - [x] Initialize React frontend in `/frontend` directory (using Vite + TypeScript)
-  - [x] Set up frontend routing, Axios API service, and types
-  - [x] Build **Home & Upload UI** (Base scaffold with routing)
-  - [x] Build **Analysis Dashboard UI** (Metrics and severity grouped charts using `recharts`)
+- [ ] **Sprint 8: Enterprise Architecture Upgrades**
+  - [ ] **AST Parsing (v2.0)**: Replace the fragile regex string-split logic in `SqlParser` with the `JSQLParser` library to natively process complex dot-qualified names, multi-schema variables, and complex constructs securely.
+  - [ ] **Authentication**: Implement Spring Security + JWT. Create a stateless authentication filter and secure all API routes under an admin role, resolving limitations marked in Phase 1.
+  - [ ] **Frontend Modernization**: Refactor out manual `useState`/`useEffect` logic within `Dashboard.tsx` by integrating React Query (TanStack) to handle robust data-caching, fetch deduplication, and structured retries.
+  - [ ] **Data Diff UI**: Construct a Migration History Diff view on the frontend that natively surfaces differential updates when a user uploads two sequential iterations of the same SQL file.
+  - [ ] **Live Validation DB**: Evolve the mock `ValidationService` to a dual-JDBC connector. Connect the backend logic to the local containerized PostgreSQL instance alongside an emulated Oracle instance for live production data verification.
 
-- [x] **Sprint 5: Validation Engine** ✅ _Completed 2026-04-13_
-  - [x] Create `ValidationResult` domain model and Repository
-  - [x] Implement `ValidationService` using dynamic JDBC context to connect to both Oracle AND PostgreSQL
-  - [x] Execute `Row Count`, `Null Count`, and `Data Type` matching between both databases
-  - [x] Write `ValidationServiceTest.java` (Cases V-01 to V-08)
-  - [x] Implement `POST /api/v1/migrations/{id}/validate`
-  - [x] Add Validation table and metric UI to the React frontend
+## Phase 3: Live Schema Extraction Engine
 
-- [x] **Sprint 6: Polish, Export, & Hardening** ✅ _Completed 2026-04-21_
-  - [x] Implement `GET /api/v1/migrations/{id}/report` to return fully aggregated run record
-  - [x] Implement `GET /api/v1/migrations/{id}/export/pdf` (Generate PDF blob via OpenPDF with header + footer)
-  - [x] Implement `GET /api/v1/migrations/{id}/export/json` (File download)
-  - [x] Polish React logic (Include split-view preview of Oracle vs Converted Postgres DB)
-  - [x] Complete End-to-End Postman testing (API-01 to API-12)
-  - [x] Source Audit: Remove any `System.out.println` or `printStackTrace` (confirmed clean)
-  - [x] Ensure all local setup `docker-compose.yml` specs are working accurately
+- [ ] **Sprint 9: Dynamic Oracle JDBC Extractors**
+  - [ ] **Maven Configurations**: Import the `ojdbc11` driver to the backend `pom.xml`.
+  - [ ] **Data Hierarchy Upgrades**: Extend the `ParsedSchema` central models to encapsulate Oracle Indexes, Views, PK/FK Constraints, Stored Procedures, Triggers, and Sequences natively.
+  - [ ] **Connector Configuration**: Sculpt the transient `OracleConnectionConfig` DTO handling host schemas while strictly enforcing ephemeral memory states for passwords.
+  - [ ] **Extraction Engine**: Blueprint the `LiveSchemaExtractor` to systematically scan dictionaries (`ALL_TABLES`, `ALL_VIEWS`, `ALL_SOURCE`, etc.) dynamically translating object records straight into `ParsedSchema`.
+  
+- [ ] **Sprint 10: Connectivity Interface & Extracted Formatter**
+  - [ ] **API Controller Node**: Configure the new backend router block `POST /api/v1/migrations/connect` returning standard `MigrationRun` formats bridging Oracle data securely to AST/Analyzer pipelines.
+  - [ ] **Formatting Downstream Rules**: Rewrite the linear string formatting behavior inside `SqlConverter` ensuring completely extracted structural environments compile correctly into DDL ordered statements (Sequences -> Base Tables -> Indexes -> Keys -> Views).
+  - [ ] **Frontend Network Panel**: Append a secondary input form to `Home.tsx` isolating direct db-socket credentials with cleanly separated visual routing hooks.
+  - [ ] **Testing Emulation**: Map testing routines against an Oracle XE Docker container testing authentic JDBC extractions comprehensively prior to rollout.
