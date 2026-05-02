@@ -1,7 +1,7 @@
 ﻿[INFO] Scanning for projects...
 [INFO] 
-[INFO] ------------------< com.migrationplayground:backend >-------------------
-[INFO] Building migration-playground 1.0.0-SNAPSHOT
+[INFO] ------------------< com.schemaforge:backend >-------------------
+[INFO] Building schema-forge 1.0.0-SNAPSHOT
 [INFO]   from pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 
@@ -32,13 +32,13 @@
 [INFO] -------------------------------------------------------
 [INFO]  T E S T S
 [INFO] -------------------------------------------------------
-[INFO] Running com.migrationplayground.analyzer.CompatibilityAnalyzerTest
-[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.276 s -- in com.migrationplayground.analyzer.CompatibilityAnalyzerTest
-[INFO] Running com.migrationplayground.analyzer.SqlConverterTest
-[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.081 s -- in com.migrationplayground.analyzer.SqlConverterTest
-[INFO] Running com.migrationplayground.parser.SqlParserTest
-[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.278 s -- in com.migrationplayground.parser.SqlParserTest
-[INFO] Running com.migrationplayground.service.ValidationServiceTest
+[INFO] Running com.schemaforge.analyzer.CompatibilityAnalyzerTest
+[INFO] Tests run: 16, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.276 s -- in com.schemaforge.analyzer.CompatibilityAnalyzerTest
+[INFO] Running com.schemaforge.analyzer.SqlConverterTest
+[INFO] Tests run: 18, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.081 s -- in com.schemaforge.analyzer.SqlConverterTest
+[INFO] Running com.schemaforge.parser.SqlParserTest
+[INFO] Tests run: 12, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.278 s -- in com.schemaforge.parser.SqlParserTest
+[INFO] Running com.schemaforge.service.ValidationServiceTest
 mvn : WARNING: A Java agent has been loaded dynamically (C:\Users\vinay 
 kumar\.m2\repository\net\bytebuddy\byte-buddy-agent\1.14.12\byte-buddy-agent-1.14.12.jar)
 At line:1 char:1
@@ -52,11 +52,11 @@ WARNING: If a serviceability tool is not in use, please run with -Djdk.instrumen
 WARNING: Dynamic loading of agents will be disallowed by default in a future release
 Java HotSpot(TM) 64-Bit Server VM warning: Sharing is only supported for boot loader classes because bootstrap 
 classpath has been appended
-15:25:23.114 [main] INFO com.migrationplayground.service.ValidationService -- Starting validation for migration ID: f4bbb0ac-8279-4cd9-9e58-63af70e709ab
-15:25:23.146 [main] INFO com.migrationplayground.service.ValidationService -- Validation completed for run f4bbb0ac-8279-4cd9-9e58-63af70e709ab. Status: PASSED. Matched: 1/1
-15:25:23.194 [main] INFO com.migrationplayground.service.ValidationService -- Starting validation for migration ID: fb63b54b-6b13-4565-938a-9400f5572f6e
-15:25:23.197 [main] INFO com.migrationplayground.service.ValidationService -- Validation completed for run fb63b54b-6b13-4565-938a-9400f5572f6e. Status: WARNING. Matched: 0/1
-[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.875 s -- in com.migrationplayground.service.ValidationServiceTest
+15:25:23.114 [main] INFO com.schemaforge.service.ValidationService -- Starting validation for migration ID: f4bbb0ac-8279-4cd9-9e58-63af70e709ab
+15:25:23.146 [main] INFO com.schemaforge.service.ValidationService -- Validation completed for run f4bbb0ac-8279-4cd9-9e58-63af70e709ab. Status: PASSED. Matched: 1/1
+15:25:23.194 [main] INFO com.schemaforge.service.ValidationService -- Starting validation for migration ID: fb63b54b-6b13-4565-938a-9400f5572f6e
+15:25:23.197 [main] INFO com.schemaforge.service.ValidationService -- Validation completed for run fb63b54b-6b13-4565-938a-9400f5572f6e. Status: WARNING. Matched: 0/1
+[INFO] Tests run: 2, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 3.875 s -- in com.schemaforge.service.ValidationServiceTest
 [INFO] 
 [INFO] Results:
 [INFO] 
@@ -65,7 +65,7 @@ classpath has been appended
 [INFO] 
 [INFO] --- jacoco:0.8.11:report (report) @ backend ---
 [INFO] Loading execution data file C:\Users\vinay kumar\Desktop\Migration_playground\backend\target\jacoco.exec
-[INFO] Analyzed bundle 'migration-playground' with 39 classes
+[INFO] Analyzed bundle 'schema-forge' with 39 classes
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------

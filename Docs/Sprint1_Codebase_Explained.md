@@ -1,6 +1,6 @@
 # Sprint 1 — Complete Codebase Explanation
 
-> **Migration Playground** | Sprint 1: Project Scaffold & Parser Engine
+> **SchemaForge** | Sprint 1: Project Scaffold & Parser Engine
 > This document is a comprehensive, in-depth walkthrough of every file built in Sprint 1. It explains not just *what* each file does, but *why* it exists, *how* it connects to everything else, and *what happens at runtime* when the system processes a request.
 
 ---
@@ -20,13 +20,13 @@
 11. [The Test Suite — SqlParserTest.java](#11-test-suite)
 12. [Empty Packages: What They're Reserved For](#12-empty-packages)
 13. [How Everything Connects (Dependency Map)](#13-dependency-map)
-14. [The Postman Collection — MigrationPlayground.postman_collection.json](#14-postman-collection)
+14. [The Postman Collection — SchemaForge.postman_collection.json](#14-postman-collection)
 
 ---
 
 ## 1. Big Picture
 
-Sprint 1 built the **foundational backend scaffold** for the Migration Playground — a tool that allows engineers to upload raw Oracle SQL files and analyze them for PostgreSQL compatibility.
+Sprint 1 built the **foundational backend scaffold** for the SchemaForge — a tool that allows engineers to upload raw Oracle SQL files and analyze them for PostgreSQL compatibility.
 
 **What Sprint 1 specifically delivers:**
 - A running Spring Boot REST API (`http://localhost:8080`)
@@ -44,7 +44,7 @@ The project does **not** yet do type conversion (Sprint 3), compatibility analys
 ```
 backend/src/main/java/com/migrationplayground/
 │
-├── MigrationPlaygroundApplication.java  ← Entry point (boots the server)
+├── SchemaForgeApplication.java  ← Entry point (boots the server)
 │
 ├── controller/
 │   └── MigrationController.java         ← Receives HTTP requests
@@ -185,7 +185,7 @@ spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
 server.port=8080
 
-logging.level.com.migrationplayground=DEBUG
+logging.level.com.schemaforge=DEBUG
 logging.file.name=logs/migration-tool.log
 ```
 
@@ -195,7 +195,7 @@ logging.file.name=logs/migration-tool.log
 - `hibernate.ddl-auto=update`: Hibernate will **automatically create or alter** the `migration_runs` table based on the `MigrationRun` entity when the app starts. This is convenient for development. In production, this should be `validate` or `none` with Flyway managing schema migrations.
 - `jpa.show-sql=false`: We're not polluting logs with every SQL statement. Flip to `true` for debugging.
 - `multipart.max-file-size` and `max-request-size=10MB`: Both must be set. The `GlobalExceptionHandler` catches `MaxUploadSizeExceededException` specifically when this limit is breached.
-- `logging.level.com.migrationplayground=DEBUG`: Every `log.info()` and `log.debug()` call inside our package will be visible. External library logs stay at INFO.
+- `logging.level.com.schemaforge=DEBUG`: Every `log.info()` and `log.debug()` call inside our package will be visible. External library logs stay at INFO.
 - `logging.file.name`: All logs are also written to `logs/migration-tool.log` (relative to working directory) in addition to the console.
 
 ---
@@ -227,18 +227,18 @@ This file is required to actually run the database that the Sprint 1 application
 
 ---
 
-### `MigrationPlaygroundApplication.java`
+### `SchemaForgeApplication.java`
 
 ```java
 @SpringBootApplication
-public class MigrationPlaygroundApplication {
+public class SchemaForgeApplication {
     public static void main(String[] args) {
-        SpringApplication.run(MigrationPlaygroundApplication.class, args);
+        SpringApplication.run(SchemaForgeApplication.class, args);
     }
 }
 ```
 
-`@SpringBootApplication` is a composite annotation that equals `@Configuration` + `@EnableAutoConfiguration` + `@ComponentScan`. The component scan starts from this class's package (`com.migrationplayground`) and recursively finds every `@Component`, `@Service`, `@Repository`, `@RestController`, and `@ControllerAdvice` in the codebase — wiring them all into the Spring IoC container automatically.
+`@SpringBootApplication` is a composite annotation that equals `@Configuration` + `@EnableAutoConfiguration` + `@ComponentScan`. The component scan starts from this class's package (`com.schemaforge`) and recursively finds every `@Component`, `@Service`, `@Repository`, `@RestController`, and `@ControllerAdvice` in the codebase — wiring them all into the Spring IoC container automatically.
 
 ---
 
@@ -717,7 +717,7 @@ HTTP Request ──────►│  │  MigrationController│              
 
 ## 14. The Postman Collection
 
-**File:** `MigrationPlayground.postman_collection.json` (repo root)
+**File:** `SchemaForge.postman_collection.json` (repo root)
 
 ### What is a Postman Collection?
 
@@ -729,8 +729,8 @@ You do **not** need to install Postman to commit or maintain the `.json` file it
 
 1. Install [Postman](https://www.postman.com/downloads/) (free desktop app)
 2. Open Postman → click **Import** (top left)
-3. Select `MigrationPlayground.postman_collection.json` from the repo root
-4. The collection appears in your left sidebar under **"Migration Playground — Sprint 1"**
+3. Select `SchemaForge.postman_collection.json` from the repo root
+4. The collection appears in your left sidebar under **"SchemaForge — Sprint 1"**
 5. Start the backend (`mvn spring-boot:run` inside `/backend`)
 6. Run any request — the `{{base_url}}` variable defaults to `http://localhost:8080`
 
@@ -859,7 +859,7 @@ Because the **React Frontend won't be built until Sprint 4**, Postman is current
 
 - **Shared test harness** — every dev gets the same API calls without rebuilding them manually
 - **Living documentation** — the collection evolves with the API across sprints
-- **CI/CD integration** — the collection can be run headlessly using [Newman](https://github.com/postmanlabs/newman) (`npx newman run MigrationPlayground.postman_collection.json`) as part of a pipeline
+- **CI/CD integration** — the collection can be run headlessly using [Newman](https://github.com/postmanlabs/newman) (`npx newman run SchemaForge.postman_collection.json`) as part of a pipeline
 - **Onboarding** — a new team member has a working API explorer in under 2 minutes
 
 ---

@@ -1,6 +1,6 @@
 # Phase 4 Production Deployment Plan: Cloud Hosting
 
-*This document is our operational reference for deploying the Migration Playground to a fully live, publicly accessible cloud environment using 100% free-tier services.*
+*This document is our operational reference for deploying the SchemaForge to a fully live, publicly accessible cloud environment using 100% free-tier services.*
 
 ---
 
@@ -103,7 +103,7 @@ ENTRYPOINT ["java", "-Xmx400m", "-jar", "app.jar"]
 
 ### Step 1 — Neon (Do this first — you need the connection string)
 1. Sign up at [neon.tech](https://neon.tech)
-2. Create project → `migration-playground`
+2. Create project → `schema-forge`
 3. Copy the connection string:
    ```
    postgresql://user:pass@ep-xxx.us-east-2.aws.neon.tech/neondb?sslmode=require
@@ -119,14 +119,14 @@ ENTRYPOINT ["java", "-Xmx400m", "-jar", "app.jar"]
    - `DB_PASS` = Neon password
    - `FRONTEND_URL` = *(set this after Vercel step below)*
 4. Railway builds the Dockerfile. Flyway automatically runs `V1` and `V2` migrations on first boot.
-5. Note your Railway public URL (e.g., `https://migration-playground-xxxx.railway.app`)
+5. Note your Railway public URL (e.g., `https://schema-forge-xxxx.railway.app`)
 
 ### Step 3 — Vercel (Frontend)
 1. Sign up at [vercel.com](https://vercel.com) → **New Project → Import GitHub repo**
 2. Set root directory to `/frontend`
 3. Set build command: `npm run build`, output directory: `dist`
 4. Add environment variable: `VITE_API_URL` = your Railway URL
-5. Deploy → note your Vercel URL (e.g., `https://migration-playground.vercel.app`)
+5. Deploy → note your Vercel URL (e.g., `https://schema-forge.vercel.app`)
 
 ### Step 4 — Loop Back to Railway
 Set `FRONTEND_URL` = your Vercel URL in the Railway env vars dashboard.

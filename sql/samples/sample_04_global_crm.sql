@@ -1,5 +1,5 @@
 -- Sample Global CRM Schema 
--- Designed for Migration Playground Sandbox and Validation Simulation Testing
+-- Designed for SchemaForge Sandbox and Validation Simulation Testing
 
 -- ---------------------------------------------------------
 -- CRM Core Entities

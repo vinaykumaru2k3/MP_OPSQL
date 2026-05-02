@@ -1,6 +1,6 @@
 # Phase 3 Development Plan: Live Schema Extraction Engine
 
-*This document outlines the architectural implementation for Phase 3: Live Schema Extraction. This phase transitions the Migration Playground from purely static file processing to an active, database-connected migration extraction tool.*
+*This document outlines the architectural implementation for Phase 3: Live Schema Extraction. This phase transitions the SchemaForge from purely static file processing to an active, database-connected migration extraction tool.*
 
 ---
 

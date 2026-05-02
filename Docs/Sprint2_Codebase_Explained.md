@@ -1,6 +1,6 @@
 # Sprint 2 — Compatibility Analyzer Codebase Explanation
 
-> **Migration Playground** | Sprint 2: Compatibility Analyzer Engine
+> **SchemaForge** | Sprint 2: Compatibility Analyzer Engine
 > This document provides a comprehensive breakdown of exactly what was built during Sprint 2. Where Sprint 1 laid the foundation and created a syntax parser, Sprint 2 introduces the real "brain" of the application: the component that detects incompatibilities between Oracle and PostgreSQL and assigns severity ratings.
 
 ---
@@ -151,7 +151,7 @@ When running `mvn test`, the Spring context runs all 11 Parser tests alongside a
 
 ## 8. The Postman Collection Update
 
-The `MigrationPlayground.postman_collection.json` file now contains a new folder: **Sprint 2 — Analysis Endpoints**.
+The `SchemaForge.postman_collection.json` file now contains a new folder: **Sprint 2 — Analysis Endpoints**.
 It houses:
 - **API-05 | Run Analysis** 
 - **API-06 | Get Analysis**

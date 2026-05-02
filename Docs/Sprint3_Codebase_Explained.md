@@ -1,6 +1,6 @@
 # Sprint 3 — Conversion Engine Codebase Explanation
 
-> **Migration Playground** | Sprint 3: Conversion Engine Implementation
+> **SchemaForge** | Sprint 3: Conversion Engine Implementation
 > This document provides a comprehensive, in-depth walkthrough of the components built during Sprint 3. Building upon the Parser (Sprint 1) and the Analyzer (Sprint 2), Sprint 3 introduces the automated transformation logic that rewrites Oracle-specific SQL into PostgreSQL-compatible syntax.
 
 ---
@@ -21,7 +21,7 @@
 
 ## 1. Big Picture
 
-Sprint 3 delivers the **Conversion Engine**, the third pillar of the Migration Playground. While Sprint 1 parsed the structure and Sprint 2 identified incompatibilities, Sprint 3 actually attempts to fix them.
+Sprint 3 delivers the **Conversion Engine**, the third pillar of the SchemaForge. While Sprint 1 parsed the structure and Sprint 2 identified incompatibilities, Sprint 3 actually attempts to fix them.
 
 **What Sprint 3 specifically delivers:**
 - **Automated SQL Transformation**: A rule-based engine that rewrites data types, functions, and sequence syntax.
@@ -164,7 +164,7 @@ These tests ensure that the conversion engine remains reliable as more rules are
 
 ## 9. The Postman Collection Update
 
-The `MigrationPlayground.postman_collection.json` file now includes a folder for **Sprint 3 — Conversion Endpoints**.
+The `SchemaForge.postman_collection.json` file now includes a folder for **Sprint 3 — Conversion Endpoints**.
 
 ### API-07 | Convert SQL
 - **Method**: `POST`
