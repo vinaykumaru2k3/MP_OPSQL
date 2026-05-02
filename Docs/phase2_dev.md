@@ -1,4 +1,4 @@
-# Phase 2 Development Plan: Migration Playground
+# Phase 2 Development Plan: SchemaForge
 
 *This document serves as an exhaustive architectural reference and execution guide for Phase 2, directly resolving technical debt elements and scaling the prototype to an enterprise-grade utility.*
 

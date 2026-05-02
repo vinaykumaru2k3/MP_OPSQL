@@ -1,4 +1,4 @@
-# Migration Playground
+# SchemaForge
 
 **Oracle-to-PostgreSQL Migration Assistant**
 
@@ -34,7 +34,7 @@ A full-stack enterprise application that automates the detection, analysis, and 
 
 Oracle-to-PostgreSQL migrations are error-prone and require specialist knowledge. Incompatibilities in data types, functions, sequences, constraints, and procedural syntax create hidden bugs that are costly to diagnose manually.
 
-Migration Playground solves this by accepting an Oracle `.sql` file and automatically:
+SchemaForge solves this by accepting an Oracle `.sql` file and automatically:
 
 1. Parsing the file to extract all tables, columns, constraints, and SQL constructs
 2. Detecting every Oracle-specific construct incompatible with PostgreSQL
@@ -110,7 +110,7 @@ The application follows a strict layered architecture. No layer bypasses another
 ## Repository Structure
 
 ```
-migration-playground/
+schema-forge/
 |-- backend/                          Spring Boot project
 |   |-- src/main/java/com/migrationplayground/
 |   |   |-- controller/               REST endpoints
@@ -138,7 +138,7 @@ migration-playground/
 |-- sql/
 |   `-- samples/                      Oracle SQL test files for parser and analyzer testing
 |-- Docs/                             Project specification and engineering guides
-|   |-- migration-playground-spec.docx
+|   |-- schema-forge-spec.docx
 |   |-- migration-companion.docx
 |   |-- migration-engineering-guide.docx
 |   |-- Sprint*_Codebase_Explained.md Sprint-by-sprint technical breakdowns
@@ -220,7 +220,7 @@ spring.jpa.show-sql=false
 spring.servlet.multipart.max-file-size=10MB
 spring.servlet.multipart.max-request-size=10MB
 server.port=8080
-logging.level.com.migrationplayground=DEBUG
+logging.level.com.schemaforge=DEBUG
 logging.file.name=logs/migration-tool.log
 ```
 
@@ -555,4 +555,4 @@ This project follows the Conventional Commits specification.
 
 ---
 
-*Migration Playground — Project Specification v1.0 | April 2026*
+*SchemaForge — Project Specification v1.0 | April 2026*

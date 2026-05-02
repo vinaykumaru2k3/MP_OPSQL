@@ -11,9 +11,9 @@ The goal of Sprint 5 is to implement a **Validation Engine** that performs row c
     - `table_validation_metrics`: Individual table metrics (row counts, null counts, data type matches).
 
 ### 2. Domain Models & Repositories
-- `com.migrationplayground.model.ValidationResult`: Entity for the validation summary.
-- `com.migrationplayground.model.TableValidationMetric`: Entity for per-table metrics.
-- `com.migrationplayground.repository.ValidationResultRepository`: For saving validation outcomes.
+- `com.schemaforge.model.ValidationResult`: Entity for the validation summary.
+- `com.schemaforge.model.TableValidationMetric`: Entity for per-table metrics.
+- `com.schemaforge.repository.ValidationResultRepository`: For saving validation outcomes.
 
 ### 3. Service Layer
 - **`ValidationService.java`**:

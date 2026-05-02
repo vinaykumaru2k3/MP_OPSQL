@@ -1,6 +1,6 @@
 # Phase 5 Development Plan: ETL Pipeline & Live Validation
 
-*This document scales the Migration Playground from a static Schema Advisor into a stateful, dual-connected Data Migration Engine. This is a significant architectural leap moving from generating DDL text to executing live, transactional data mutations.*
+*This document scales the SchemaForge from a static Schema Advisor into a stateful, dual-connected Data Migration Engine. This is a significant architectural leap moving from generating DDL text to executing live, transactional data mutations.*
 
 ---
 

@@ -1,5 +1,5 @@
 {
-  "name": "migration-playground-root",
+  "name": "schema-forge-root",
   "private": true,
   "scripts": {
     "prepare": "husky"

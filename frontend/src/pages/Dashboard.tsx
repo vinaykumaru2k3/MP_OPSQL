@@ -1,33 +1,34 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { ResponsiveContainer, Cell, PieChart, Pie, Tooltip } from 'recharts';
 import {
   AlertTriangle, CheckCircle2, Info,
   Download, Play, FileCode, Loader2, AlertCircle,
-  BarChart2, Search, Database, ArrowRight, RefreshCw,
+  BarChart2, Search, Database, ArrowRight, RefreshCw, History,
 } from 'lucide-react';
 import { migrationApi } from '../api/migrationApi';
-import type { AnalysisReport, ConvertedScript, ValidationResult } from '../types';
+import type { AnalysisReport, ConvertedScript, ValidationResult, MigrationRun } from '../types';
 
 /* ─── Reusable sub-components ───────────────────────────────────── */
 
 const StatCard = ({
   label, value, accent,
 }: { label: string; value: string | number; accent?: string }) => (
-  <div className="bg-white border border-[#e5e7eb] rounded-lg px-5 py-4">
-    <p className="text-xs font-semibold text-[#6b7280] uppercase tracking-wider mb-1">{label}</p>
-    <p className={`text-2xl font-bold ${accent ?? 'text-[#1a1f2e]'}`}>{value}</p>
+  <div className="bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-xl px-6 py-5 shadow-[0_0_15px_rgba(0,0,0,0.2)]">
+    <p className="text-xs font-bold text-zinc-500 uppercase tracking-widest mb-2">{label}</p>
+    <p className={`text-3xl font-extrabold ${accent ?? 'text-white'}`}>{value}</p>
   </div>
 );
 
 const SeverityBadge = ({ severity }: { severity: string }) => {
   const map: Record<string, string> = {
-    HIGH: 'bg-[#fef2f2] text-[#dc2626] border-[#fecaca]',
-    MEDIUM: 'bg-[#fffbeb] text-[#d97706] border-[#fde68a]',
-    LOW: 'bg-[#eff6ff] text-[#1a56db] border-[#bfdbfe]',
+    HIGH: 'bg-red-950/30 text-red-400 border-red-900/50',
+    MEDIUM: 'bg-orange-950/30 text-orange-400 border-orange-900/50',
+    LOW: 'bg-white/10 text-zinc-300 border-white/20',
   };
   return (
-    <span className={`inline-block text-[10px] font-bold uppercase px-1.5 py-0.5 rounded border ${map[severity] ?? ''}`}>
+    <span className={`inline-block text-[10px] font-bold uppercase px-2 py-0.5 rounded border tracking-wider ${map[severity] ?? ''}`}>
       {severity}
     </span>
   );
@@ -36,69 +37,96 @@ const SeverityBadge = ({ severity }: { severity: string }) => {
 /* ─── Main Component ─────────────────────────────────────────────── */
 
 const Dashboard: React.FC = () => {
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const runId = searchParams.get('runId');
+  const queryClient = useQueryClient();
 
-  const [report, setReport] = useState<AnalysisReport | null>(null);
-  const [script, setScript] = useState<ConvertedScript | null>(null);
-  const [validation, setValidation] = useState<ValidationResult | null>(null);
-  const [actionLoading, setActionLoading] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'analysis' | 'script' | 'validation'>('analysis');
+  const [activeTab, setActiveTab] = useState<'analysis' | 'script' | 'validation' | 'history'>('analysis');
   const [filter, setFilter] = useState('ALL');
   const [convertingScreen, setConvertingScreen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (runId) {
-      fetchAnalysis(runId);
-      fetchValidation(runId);
+  // 1. Fetch current run details (to get fileName)
+  const { data: currentRun } = useQuery<MigrationRun>({
+    queryKey: ['run', runId],
+    queryFn: () => migrationApi.getRun(runId!),
+    enabled: !!runId,
+  });
+
+  // 2. Fetch analysis report
+  const { data: report, error: reportError } = useQuery<AnalysisReport>({
+    queryKey: ['analysis', runId],
+    queryFn: async () => {
+      try { return await migrationApi.getAnalysis(runId!); }
+      catch { return await migrationApi.analyze(runId!); }
+    },
+    enabled: !!runId,
+    retry: 1,
+  });
+
+  React.useEffect(() => {
+    if (reportError) {
+      const err = reportError as Error & { response?: { data?: { message?: string } } };
+      setError(err.response?.data?.message || 'Analysis failed.');
     }
-  }, [runId]);
+  }, [reportError]);
 
-  const fetchAnalysis = async (id: string) => {
-    setError(null);
-    try {
-      let data;
-      try { data = await migrationApi.getAnalysis(id); }
-      catch { data = await migrationApi.analyze(id); }
-      setReport(data);
-    } catch (err) { console.error(err); }
-  };
+  // 3. Fetch validation
+  const { data: validation, refetch: refetchValidation } = useQuery<ValidationResult>({
+    queryKey: ['validation', runId],
+    queryFn: () => migrationApi.getValidation(runId!),
+    enabled: !!runId,
+    retry: false,
+  });
 
-  const fetchValidation = async (id: string) => {
-    try { setValidation(await migrationApi.getValidation(id)); }
-    catch { /* not yet run */ }
-  };
+  // 4. Fetch script
+  const { data: script, refetch: refetchScript } = useQuery<ConvertedScript>({
+    queryKey: ['script', runId],
+    queryFn: () => migrationApi.getConvertedScript(runId!),
+    enabled: !!runId,
+    retry: false,
+  });
 
-  const handleConvert = async () => {
-    if (!runId) return;
-    setActionLoading('convert');
-    try {
-      const data = await migrationApi.convert(runId);
+  // 5. Fetch history (global)
+  const { data: history } = useQuery<MigrationRun[]>({
+    queryKey: ['history'],
+    queryFn: () => migrationApi.getHistory(),
+  });
+
+  // Mutations
+  const convertMutation = useMutation({
+    mutationFn: () => migrationApi.convert(runId!),
+    onMutate: () => {
       setConvertingScreen(true);
       setActiveTab('script');
-      setTimeout(() => {
-        setScript(data);
-        setConvertingScreen(false);
-      }, 2000);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
+      setError(null);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['script', runId], data);
+      setTimeout(() => setConvertingScreen(false), 2000);
+    },
+    onError: (err: Error & { response?: { data?: { message?: string } } }) => {
+      setConvertingScreen(false);
       setError(err.response?.data?.message || 'Conversion failed.');
-    } finally { setActionLoading(null); }
-  };
+    }
+  });
 
-  const handleValidate = async () => {
-    if (!runId) return;
-    setActionLoading('validate');
-    try {
-      const data = await migrationApi.validate(runId);
-      setValidation(data);
+  const validateMutation = useMutation({
+    mutationFn: () => migrationApi.validate(runId!),
+    onMutate: () => {
+      setError(null);
+    },
+    onSuccess: (data) => {
+      queryClient.setQueryData(['validation', runId], data);
       setActiveTab('validation');
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    } catch (err: any) {
+    },
+    onError: (err: Error & { response?: { data?: { message?: string } } }) => {
       setError(err.response?.data?.message || 'Validation failed.');
-    } finally { setActionLoading(null); }
-  };
+    }
+  });
+
+  const handleConvert = () => convertMutation.mutate();
+  const handleValidate = () => validateMutation.mutate();
 
   const handleExport = (type: 'pdf' | 'json') => {
     if (!runId) return;
@@ -110,15 +138,15 @@ const Dashboard: React.FC = () => {
   /* ── No run selected ── */
   if (!runId) {
     return (
-      <div className="flex flex-col items-center justify-center h-80 bg-white rounded-lg border border-[#e5e7eb] text-center px-6">
-        <div className="w-12 h-12 rounded-full bg-[#f3f4f6] flex items-center justify-center mb-4">
-          <AlertCircle className="h-6 w-6 text-[#9ca3af]" />
+      <div className="flex flex-col items-center justify-center h-80 bg-zinc-900/50 backdrop-blur-md rounded-2xl border border-white/10 text-center px-6 shadow-[0_0_20px_rgba(0,0,0,0.2)]">
+        <div className="w-14 h-14 rounded-2xl bg-white/5 flex items-center justify-center mb-5 border border-white/10 shadow-inner">
+          <AlertCircle className="h-6 w-6 text-zinc-400" />
         </div>
-        <h2 className="text-base font-semibold text-[#1a1f2e] mb-1">No migration selected</h2>
-        <p className="text-sm text-[#6b7280] mb-5">Upload a SQL file first to open the analysis dashboard.</p>
+        <h2 className="text-xl font-bold text-white mb-2 tracking-tight">No migration selected</h2>
+        <p className="text-sm text-zinc-400 mb-6">Upload a SQL file first to open the analysis dashboard.</p>
         <button
           onClick={() => window.location.href = '/'}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a56db] text-white text-sm font-semibold rounded-md hover:bg-[#1648c0] transition-colors"
+          className="inline-flex items-center gap-2 px-6 py-2.5 bg-white text-black text-sm font-semibold rounded-full hover:bg-zinc-200 transition-colors shadow-[0_0_15px_rgba(255,255,255,0.2)]"
         >
           Go to Upload
           <ArrowRight className="h-4 w-4" />
@@ -146,78 +174,81 @@ const Dashboard: React.FC = () => {
     { id: 'analysis', label: 'Issue Report', icon: AlertTriangle, locked: false },
     { id: 'script', label: 'SQL Comparison', icon: FileCode, locked: !script },
     { id: 'validation', label: 'Validation', icon: Database, locked: !validation },
+    { id: 'history', label: 'History Diff', icon: History, locked: false },
   ] as const;
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       {/* ── Page header ── */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-xl font-semibold text-[#1a1f2e] flex items-center gap-2">
-            <BarChart2 className="h-5 w-5 text-[#1a56db]" />
+          <h1 className="text-2xl font-bold text-white flex items-center gap-3 tracking-tight">
+            <BarChart2 className="h-6 w-6 text-white" />
             Analysis Dashboard
           </h1>
-          <p className="text-xs text-[#6b7280] mt-0.5 font-mono">Run: {runId}</p>
+          <p className="text-xs text-zinc-500 mt-1 font-mono tracking-wider">Run: {runId}</p>
         </div>
         <div className="flex items-center gap-2">
           {/* Refresh */}
           <button
-            onClick={() => { fetchAnalysis(runId); fetchValidation(runId); }}
-            className="p-2 bg-white border border-[#e5e7eb] rounded-md text-[#6b7280] hover:text-[#1a1f2e] hover:border-[#374151] transition-colors"
+            onClick={() => { queryClient.invalidateQueries({ queryKey: ['analysis'] }); refetchValidation(); refetchScript(); }}
+            className="p-2.5 bg-white/5 border border-white/10 rounded-lg text-zinc-400 hover:text-white hover:bg-white/10 transition-colors"
             title="Refresh"
           >
             <RefreshCw className="h-4 w-4" />
           </button>
           {/* Exports */}
           <button
-            onClick={() => handleExport('pdf')}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-[#e5e7eb] rounded-md text-xs font-medium text-[#6b7280] hover:text-[#1a1f2e] hover:border-[#374151] transition-colors"
+            onClick={() => handleExport('json')}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm font-semibold rounded-lg hover:bg-white/10 transition-colors"
           >
-            <Download className="h-3.5 w-3.5" /> PDF
+            <Download className="h-4 w-4" />
+            JSON
           </button>
           <button
-            onClick={() => handleExport('json')}
-            className="inline-flex items-center gap-1.5 px-3 py-2 bg-white border border-[#e5e7eb] rounded-md text-xs font-medium text-[#6b7280] hover:text-[#1a1f2e] hover:border-[#374151] transition-colors"
+            onClick={() => handleExport('pdf')}
+            className="flex items-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 text-white text-sm font-semibold rounded-lg hover:bg-white/10 transition-colors"
           >
-            <Download className="h-3.5 w-3.5" /> JSON
+            <Download className="h-4 w-4" />
+            PDF
           </button>
           {/* Convert */}
           <button
             onClick={handleConvert}
-            disabled={!!script || actionLoading === 'convert'}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold transition-colors ${
-              script || actionLoading === 'convert'
-                ? 'bg-[#e5e7eb] text-[#9ca3af] cursor-not-allowed'
-                : 'bg-[#1a1f2e] text-white hover:bg-[#374151]'
+            disabled={!!script || convertMutation.isPending}
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+              script || convertMutation.isPending
+                ? 'bg-zinc-900/50 text-zinc-600 cursor-not-allowed border border-white/5'
+                : 'bg-white text-black hover:bg-zinc-200 shadow-[0_0_15px_rgba(255,255,255,0.2)]'
             }`}
           >
-            {actionLoading === 'convert'
-              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Converting…</>
-              : <><Play className="h-3.5 w-3.5" />{script ? 'Converted' : 'Convert'}</>}
+            {convertMutation.isPending
+              ? <><Loader2 className="h-4 w-4 animate-spin" /> Converting…</>
+              : <><Play className="h-4 w-4" />{script ? 'Converted' : 'Convert'}</>}
           </button>
           {/* Validate */}
           <button
             onClick={handleValidate}
-            disabled={!!validation || actionLoading === 'validate'}
-            className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-md text-xs font-semibold transition-colors ${
-              validation || actionLoading === 'validate'
-                ? 'bg-[#e5e7eb] text-[#9ca3af] cursor-not-allowed'
-                : 'bg-[#1a56db] text-white hover:bg-[#1648c0]'
+            disabled={!!validation || validateMutation.isPending}
+            className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors ${
+              validation || validateMutation.isPending
+                ? 'bg-zinc-900/50 text-zinc-600 cursor-not-allowed border border-white/5'
+                : 'bg-white/10 text-white border border-white/20 hover:bg-white/20'
             }`}
           >
-            {actionLoading === 'validate'
-              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Running…</>
-              : <><Search className="h-3.5 w-3.5" />{validation ? 'Validated' : 'Validate'}</>}
+            {validateMutation.isPending
+              ? <><Loader2 className="h-4 w-4 animate-spin" /> Running…</>
+              : <><Search className="h-4 w-4" />{validation ? 'Validated' : 'Validate'}</>}
           </button>
         </div>
       </div>
 
       {/* ── Error banner ── */}
       {error && (
-        <div className="flex items-center gap-2.5 p-3.5 bg-[#fef2f2] border border-[#fecaca] rounded-md">
-          <AlertCircle className="h-4 w-4 text-[#dc2626] flex-shrink-0" />
-          <p className="text-sm text-[#b91c1c]">{error}</p>
-          <button onClick={() => setError(null)} className="ml-auto text-[#9ca3af] hover:text-[#6b7280] text-xs">Dismiss</button>
+        <div className="flex items-center gap-3 p-4 bg-red-950/30 border border-red-900/50 rounded-xl">
+          <AlertCircle className="h-5 w-5 text-red-400 flex-shrink-0" />
+          <p className="text-sm text-red-200">{error}</p>
+          <button onClick={() => setError(null)} className="ml-auto text-zinc-500 hover:text-white text-xs font-semibold">Dismiss</button>
         </div>
       )}
 
@@ -233,11 +264,11 @@ const Dashboard: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
 
         {/* Chart card */}
-        <div className="bg-white border border-[#e5e7eb] rounded-lg overflow-hidden">
-          <div className="border-b border-[#e5e7eb] px-4 py-3">
-            <p className="text-xs font-semibold text-[#1a1f2e] uppercase tracking-wider">Severity Breakdown</p>
+        <div className="bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.2)]">
+          <div className="border-b border-white/10 px-5 py-4 bg-black/20">
+            <p className="text-xs font-bold text-white uppercase tracking-widest">Severity Breakdown</p>
           </div>
-          <div className="p-4">
+          <div className="p-5">
             <div className="h-44">
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -252,19 +283,19 @@ const Dashboard: React.FC = () => {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ fontSize: 12, border: '1px solid #e5e7eb', borderRadius: 6 }}
+                    contentStyle={{ fontSize: 12, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, backgroundColor: '#18181b', color: '#fff' }}
                   />
                 </PieChart>
               </ResponsiveContainer>
             </div>
-            <div className="space-y-1.5 mt-2">
+            <div className="space-y-2 mt-4">
               {chartData.map(d => (
-                <div key={d.name} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: d.color }} />
-                    <span className="text-[#6b7280]">{d.name}</span>
+                <div key={d.name} className="flex items-center justify-between text-xs font-medium">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: d.color }} />
+                    <span className="text-zinc-400">{d.name}</span>
                   </div>
-                  <span className="font-semibold text-[#1a1f2e]">{d.value}</span>
+                  <span className="font-bold text-white">{d.value}</span>
                 </div>
               ))}
             </div>
@@ -272,45 +303,45 @@ const Dashboard: React.FC = () => {
         </div>
 
         {/* Tab panel */}
-        <div className="lg:col-span-3 bg-white border border-[#e5e7eb] rounded-lg overflow-hidden flex flex-col">
+        <div className="lg:col-span-3 bg-zinc-900/50 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden shadow-[0_0_15px_rgba(0,0,0,0.2)] flex flex-col">
           {/* Tabs */}
-          <div className="flex border-b border-[#e5e7eb]">
+          <div className="flex border-b border-white/10 bg-black/20">
             {tabs.map(({ id, label, icon: Icon, locked }) => (
               <button
                 key={id}
                 onClick={() => !locked && setActiveTab(id)}
                 disabled={locked}
-                className={`flex items-center gap-1.5 px-4 py-3 text-xs font-semibold border-b-2 transition-colors ${
+                className={`flex items-center gap-2 px-5 py-3.5 text-xs font-bold tracking-wide border-b-2 transition-colors ${
                   activeTab === id
-                    ? 'border-[#1a56db] text-[#1a56db] bg-[#eff6ff]/40'
+                    ? 'border-white text-white bg-white/5'
                     : locked
-                    ? 'border-transparent text-[#d1d5db] cursor-not-allowed'
-                    : 'border-transparent text-[#6b7280] hover:text-[#1a1f2e] hover:bg-[#f9fafb]'
+                    ? 'border-transparent text-zinc-600 cursor-not-allowed'
+                    : 'border-transparent text-zinc-400 hover:text-white hover:bg-white/5'
                 }`}
               >
-                <Icon className="h-3.5 w-3.5" />
+                <Icon className="h-4 w-4" />
                 {label}
               </button>
             ))}
           </div>
 
           {/* Tab content */}
-          <div className="flex-1 overflow-auto p-4 max-h-[520px]">
+          <div className="flex-1 overflow-auto p-5 max-h-[520px]">
 
             {/* ─── Analysis Tab ─── */}
             {activeTab === 'analysis' && (
               <div>
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-sm font-semibold text-[#1a1f2e]">Detected Incompatibilities</h3>
-                  <div className="flex items-center gap-1 bg-[#f3f4f6] rounded-md p-0.5">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-white tracking-tight">Detected Incompatibilities</h3>
+                  <div className="flex items-center gap-1 bg-black/40 rounded-lg p-1 border border-white/5">
                     {['ALL', 'HIGH', 'MEDIUM', 'LOW'].map(lvl => (
                       <button
                         key={lvl}
                         onClick={() => setFilter(lvl)}
-                        className={`px-2.5 py-1 text-[10px] font-bold rounded transition-all ${
+                        className={`px-3 py-1.5 text-[10px] font-bold tracking-wider rounded-md transition-all ${
                           filter === lvl
-                            ? 'bg-white text-[#1a56db] shadow-sm'
-                            : 'text-[#6b7280] hover:text-[#1a1f2e]'
+                            ? 'bg-white/10 text-white shadow-sm border border-white/10'
+                            : 'text-zinc-500 hover:text-white hover:bg-white/5 border border-transparent'
                         }`}
                       >
                         {lvl}
@@ -320,35 +351,35 @@ const Dashboard: React.FC = () => {
                 </div>
 
                 {!report ? (
-                  <div className="flex flex-col items-center justify-center py-16">
-                    <Loader2 className="h-6 w-6 text-[#1a56db] animate-spin mb-2" />
-                    <p className="text-sm text-[#6b7280]">Analyzing schema…</p>
+                  <div className="flex flex-col items-center justify-center py-20">
+                    <Loader2 className="h-6 w-6 text-white animate-spin mb-3" />
+                    <p className="text-sm text-zinc-400 font-medium">Analyzing schema…</p>
                   </div>
                 ) : filteredIssues.length > 0 ? (
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     {filteredIssues.map((issue, idx) => (
-                      <div key={idx} className="flex items-start gap-3 px-4 py-3 rounded-md border border-[#e5e7eb] hover:bg-[#f9fafb] transition-colors">
+                      <div key={idx} className="flex items-start gap-4 px-5 py-4 rounded-xl border border-white/5 bg-white/5 hover:bg-white/10 hover:border-white/20 transition-colors">
                         <div className="mt-0.5 flex-shrink-0">
                           {issue.severity === 'HIGH'
-                            ? <AlertTriangle className="h-4 w-4 text-[#dc2626]" />
+                            ? <AlertTriangle className="h-5 w-5 text-red-400" />
                             : issue.severity === 'MEDIUM'
-                            ? <AlertTriangle className="h-4 w-4 text-[#d97706]" />
-                            : <Info className="h-4 w-4 text-[#1a56db]" />}
+                            ? <AlertTriangle className="h-5 w-5 text-orange-400" />
+                            : <Info className="h-5 w-5 text-zinc-300" />}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <span className="text-sm font-semibold text-[#1a1f2e] font-mono">{issue.construct}</span>
+                          <div className="flex items-center gap-3 mb-1">
+                            <span className="text-sm font-bold text-white font-mono tracking-tight">{issue.construct}</span>
                             <SeverityBadge severity={issue.severity} />
                           </div>
-                          <p className="text-xs text-[#6b7280]">{issue.description}</p>
+                          <p className="text-sm text-zinc-400 leading-relaxed">{issue.description}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center py-16 border-2 border-dashed border-[#e5e7eb] rounded-lg">
-                    <CheckCircle2 className="h-8 w-8 text-[#16a34a] mb-2" />
-                    <p className="text-sm text-[#6b7280]">No issues at this severity level.</p>
+                  <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
+                    <CheckCircle2 className="h-8 w-8 text-emerald-400 mb-3" />
+                    <p className="text-sm text-zinc-400 font-medium">No issues at this severity level.</p>
                   </div>
                 )}
               </div>
@@ -358,24 +389,24 @@ const Dashboard: React.FC = () => {
             {activeTab === 'script' && (
               <div className="h-full flex flex-col">
                 {convertingScreen ? (
-                  <div className="flex flex-col items-center justify-center h-full py-20 select-none">
+                  <div className="flex flex-col items-center justify-center h-full py-24 select-none">
                     {/* Animated ring */}
-                    <div className="relative w-20 h-20 mb-6">
-                      <div className="absolute inset-0 rounded-full border-4 border-[#e5e7eb]" />
+                    <div className="relative w-20 h-20 mb-8">
+                      <div className="absolute inset-0 rounded-full border-4 border-white/5" />
                       <div
-                        className="absolute inset-0 rounded-full border-4 border-transparent border-t-[#1a56db] animate-spin"
+                        className="absolute inset-0 rounded-full border-4 border-transparent border-t-white animate-spin"
                         style={{ animationDuration: '0.8s' }}
                       />
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <FileCode className="h-7 w-7 text-[#1a56db]" />
+                        <FileCode className="h-6 w-6 text-white" />
                       </div>
                     </div>
-                    <p className="text-sm font-semibold text-[#1a1f2e] mb-1">Converting to PostgreSQL…</p>
-                    <p className="text-xs text-[#6b7280]">Rewriting Oracle-specific syntax</p>
+                    <p className="text-lg font-bold text-white mb-2 tracking-tight">Converting to PostgreSQL…</p>
+                    <p className="text-sm text-zinc-400">Rewriting Oracle-specific syntax</p>
                     {/* Progress bar */}
-                    <div className="mt-6 w-56 h-1.5 bg-[#e5e7eb] rounded-full overflow-hidden">
+                    <div className="mt-8 w-64 h-1 bg-white/10 rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#1a56db] rounded-full"
+                        className="h-full bg-white rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]"
                         style={{ animation: 'convertProgress 2s ease-in-out forwards' }}
                       />
                     </div>
@@ -388,10 +419,10 @@ const Dashboard: React.FC = () => {
                   </div>
                 ) : script ? (
                   <>
-                    <div className="flex items-center justify-between mb-3">
-                      <p className="text-xs text-[#6b7280] font-medium">Side-by-side SQL Comparison</p>
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-xs text-zinc-400 font-bold uppercase tracking-widest">Side-by-side SQL Comparison</p>
                       <button
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-[#f3f4f6] border border-[#e5e7eb] rounded text-xs font-semibold text-[#374151] hover:bg-[#e5e7eb] transition-colors"
+                        className="inline-flex items-center gap-2 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-xs font-semibold text-white hover:bg-white/10 transition-colors"
                         onClick={() => {
                           const blob = new Blob([script.convertedSql], { type: 'text/plain' });
                           const url = URL.createObjectURL(blob);
@@ -399,39 +430,39 @@ const Dashboard: React.FC = () => {
                           a.href = url; a.download = `postgres_${runId?.substring(0, 8)}.sql`; a.click();
                         }}
                       >
-                        <Download className="h-3 w-3" /> Download SQL
+                        <Download className="h-4 w-4" /> Download SQL
                       </button>
                     </div>
-                    <div className="flex-1 grid grid-cols-2 gap-3 min-h-[400px]">
-                      <div className="bg-[#1a1f2e] rounded-lg overflow-hidden flex flex-col">
-                        <div className="px-4 py-2 border-b border-white/10 flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-[#dc2626]" />
-                          <span className="text-[10px] font-bold text-[#8b92a5] uppercase tracking-wider">Oracle Source</span>
+                    <div className="flex-1 grid grid-cols-2 gap-4 min-h-[400px]">
+                      <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden flex flex-col shadow-inner">
+                        <div className="px-5 py-3 border-b border-white/5 flex items-center gap-3 bg-black/40">
+                          <div className="w-2.5 h-2.5 rounded-sm bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.5)]" />
+                          <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Oracle Source</span>
                         </div>
-                        <pre className="flex-1 p-4 font-mono text-[11px] text-[#a8b0c2] overflow-auto leading-relaxed whitespace-pre">
+                        <pre className="flex-1 p-5 font-mono text-xs text-zinc-300 overflow-auto leading-relaxed whitespace-pre selection:bg-white/20">
                           {script.originalSql ?? 'No source SQL available.'}
                         </pre>
                       </div>
-                      <div className="bg-[#0d1117] rounded-lg overflow-hidden flex flex-col">
-                        <div className="px-4 py-2 border-b border-white/10 flex items-center gap-2">
-                          <div className="w-2 h-2 rounded-full bg-[#16a34a]" />
-                          <span className="text-[10px] font-bold text-[#4ade80] uppercase tracking-wider">PostgreSQL Output</span>
+                      <div className="bg-black/40 rounded-xl border border-white/5 overflow-hidden flex flex-col shadow-inner">
+                        <div className="px-5 py-3 border-b border-white/5 flex items-center gap-3 bg-black/40">
+                          <div className="w-2.5 h-2.5 rounded-sm bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                          <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-widest">PostgreSQL Output</span>
                         </div>
-                        <pre className="flex-1 p-4 font-mono text-[11px] text-[#86efac] overflow-auto leading-relaxed whitespace-pre">
+                        <pre className="flex-1 p-5 font-mono text-xs text-emerald-300 overflow-auto leading-relaxed whitespace-pre selection:bg-emerald-500/30">
                           {script.convertedSql}
                         </pre>
                       </div>
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full py-16">
-                    <FileCode className="h-10 w-10 text-[#d1d5db] mb-3" />
-                    <p className="text-sm font-medium text-[#374151] mb-1">No script generated yet</p>
-                    <p className="text-xs text-[#6b7280] mb-5 text-center max-w-xs">
+                  <div className="flex flex-col items-center justify-center h-full py-20 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
+                    <FileCode className="h-10 w-10 text-zinc-500 mb-4" />
+                    <p className="text-base font-bold text-white mb-2">No script generated yet</p>
+                    <p className="text-sm text-zinc-400 mb-6 text-center max-w-sm">
                       Run the conversion engine to generate a PostgreSQL-compatible DDL script.
                     </p>
-                    <button onClick={handleConvert} className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a1f2e] text-white text-sm font-semibold rounded-md hover:bg-[#374151] transition-colors">
-                      <Play className="h-3.5 w-3.5" /> Convert to PostgreSQL
+                    <button onClick={handleConvert} className="inline-flex items-center gap-2 px-6 py-2.5 bg-white text-black text-sm font-semibold rounded-full hover:bg-zinc-200 shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-colors">
+                      <Play className="h-4 w-4" /> Convert to PostgreSQL
                     </button>
                   </div>
                 )}
@@ -443,54 +474,54 @@ const Dashboard: React.FC = () => {
               <div>
                 {validation ? (
                   <>
-                    <div className="grid grid-cols-3 gap-3 mb-4">
-                      <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-md px-4 py-3">
-                        <p className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider mb-1">Status</p>
-                        <div className="flex items-center gap-1.5">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                      <div className="bg-zinc-900/50 border border-white/10 rounded-xl px-5 py-4">
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Status</p>
+                        <div className="flex items-center gap-2">
                           {validation.validationStatus === 'PASSED'
-                            ? <CheckCircle2 className="h-4 w-4 text-[#16a34a]" />
-                            : <AlertTriangle className="h-4 w-4 text-[#d97706]" />}
-                          <span className={`text-sm font-bold ${validation.validationStatus === 'PASSED' ? 'text-[#166534]' : 'text-[#92400e]'}`}>
+                            ? <CheckCircle2 className="h-5 w-5 text-emerald-400" />
+                            : <AlertTriangle className="h-5 w-5 text-orange-400" />}
+                          <span className={`text-xl font-bold tracking-tight ${validation.validationStatus === 'PASSED' ? 'text-emerald-400' : 'text-orange-400'}`}>
                             {validation.validationStatus}
                           </span>
                         </div>
                       </div>
-                      <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-md px-4 py-3">
-                        <p className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider mb-1">Tables Validated</p>
-                        <p className="text-lg font-bold text-[#1a1f2e]">{validation.tablesValidatedCount}</p>
+                      <div className="bg-zinc-900/50 border border-white/10 rounded-xl px-5 py-4">
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Tables Validated</p>
+                        <p className="text-3xl font-extrabold text-white">{validation.tablesValidatedCount}</p>
                       </div>
-                      <div className="bg-[#f9fafb] border border-[#e5e7eb] rounded-md px-4 py-3">
-                        <p className="text-[10px] font-bold text-[#6b7280] uppercase tracking-wider mb-1">Row Match</p>
-                        <p className="text-lg font-bold text-[#1a1f2e]">{validation.tablesMatchedCount} / {validation.tablesValidatedCount}</p>
+                      <div className="bg-zinc-900/50 border border-white/10 rounded-xl px-5 py-4">
+                        <p className="text-[10px] font-bold text-zinc-500 uppercase tracking-widest mb-2">Row Match</p>
+                        <p className="text-3xl font-extrabold text-white">{validation.tablesMatchedCount} <span className="text-zinc-600 text-xl font-medium">/ {validation.tablesValidatedCount}</span></p>
                       </div>
                     </div>
 
-                    <div className="border border-[#e5e7eb] rounded-lg overflow-hidden">
+                    <div className="border border-white/10 rounded-xl overflow-hidden bg-black/20">
                       <table className="min-w-full text-xs">
                         <thead>
-                          <tr className="bg-[#f3f4f6] border-b border-[#e5e7eb]">
-                            <th className="px-4 py-2.5 text-left font-semibold text-[#374151] uppercase tracking-wider">Table</th>
-                            <th className="px-4 py-2.5 text-right font-semibold text-[#374151] uppercase tracking-wider">Oracle Rows</th>
-                            <th className="px-4 py-2.5 text-center font-semibold text-[#374151]">
-                              <ArrowRight className="h-3 w-3 inline" />
+                          <tr className="bg-black/40 border-b border-white/10">
+                            <th className="px-5 py-4 text-left font-bold text-zinc-400 uppercase tracking-widest">Table</th>
+                            <th className="px-5 py-4 text-right font-bold text-zinc-400 uppercase tracking-widest">Oracle Rows</th>
+                            <th className="px-5 py-4 text-center font-bold text-zinc-500">
+                              <ArrowRight className="h-4 w-4 inline" />
                             </th>
-                            <th className="px-4 py-2.5 text-left font-semibold text-[#374151] uppercase tracking-wider">PG Rows</th>
-                            <th className="px-4 py-2.5 text-center font-semibold text-[#374151] uppercase tracking-wider">Match</th>
+                            <th className="px-5 py-4 text-left font-bold text-zinc-400 uppercase tracking-widest">PG Rows</th>
+                            <th className="px-5 py-4 text-center font-bold text-zinc-400 uppercase tracking-widest">Match</th>
                           </tr>
                         </thead>
-                        <tbody className="divide-y divide-[#e5e7eb] bg-white">
+                        <tbody className="divide-y divide-white/5">
                           {validation.metrics.map((m, idx) => (
-                            <tr key={idx} className="hover:bg-[#f9fafb] transition-colors">
-                              <td className="px-4 py-2.5 font-mono font-semibold text-[#1a1f2e]">{m.tableName}</td>
-                              <td className="px-4 py-2.5 text-right text-[#374151]">{m.sourceRowCount?.toLocaleString()}</td>
-                              <td className="px-4 py-2.5 text-center text-[#d1d5db]">
-                                <ArrowRight className="h-3 w-3 inline" />
+                            <tr key={idx} className="hover:bg-white/5 transition-colors">
+                              <td className="px-5 py-3.5 font-mono font-bold text-white tracking-tight">{m.tableName}</td>
+                              <td className="px-5 py-3.5 text-right font-medium text-zinc-300">{m.sourceRowCount?.toLocaleString()}</td>
+                              <td className="px-5 py-3.5 text-center text-zinc-600">
+                                <ArrowRight className="h-4 w-4 inline" />
                               </td>
-                              <td className="px-4 py-2.5 text-[#374151]">{m.targetRowCount?.toLocaleString()}</td>
-                              <td className="px-4 py-2.5 text-center">
+                              <td className="px-5 py-3.5 font-medium text-zinc-300">{m.targetRowCount?.toLocaleString()}</td>
+                              <td className="px-5 py-3.5 text-center">
                                 {m.rowCountMatch
-                                  ? <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[#f0fdf4] text-[#16a34a] border border-[#bbf7d0]">MATCH</span>
-                                  : <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[#fef2f2] text-[#dc2626] border border-[#fecaca]">MISMATCH</span>}
+                                  ? <span className="inline-block px-2.5 py-1 rounded border text-[10px] font-bold tracking-wider bg-emerald-950/50 text-emerald-400 border-emerald-900/50">MATCH</span>
+                                  : <span className="inline-block px-2.5 py-1 rounded border text-[10px] font-bold tracking-wider bg-red-950/50 text-red-400 border-red-900/50">MISMATCH</span>}
                               </td>
                             </tr>
                           ))}
@@ -499,15 +530,60 @@ const Dashboard: React.FC = () => {
                     </div>
                   </>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full py-16">
-                    <Database className="h-10 w-10 text-[#d1d5db] mb-3" />
-                    <p className="text-sm font-medium text-[#374151] mb-1">No validation run yet</p>
-                    <p className="text-xs text-[#6b7280] mb-5 text-center max-w-xs">
+                  <div className="flex flex-col items-center justify-center h-full py-20 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
+                    <Database className="h-10 w-10 text-zinc-500 mb-4" />
+                    <p className="text-base font-bold text-white mb-2">No validation run yet</p>
+                    <p className="text-sm text-zinc-400 mb-6 text-center max-w-sm">
                       Run the validation engine to compare source and target row counts.
                     </p>
-                    <button onClick={handleValidate} className="inline-flex items-center gap-2 px-4 py-2 bg-[#1a56db] text-white text-sm font-semibold rounded-md hover:bg-[#1648c0] transition-colors">
-                      <Search className="h-3.5 w-3.5" /> Start Validation
+                    <button onClick={handleValidate} className="inline-flex items-center gap-2 px-6 py-2.5 bg-white text-black text-sm font-semibold rounded-full hover:bg-zinc-200 shadow-[0_0_15px_rgba(255,255,255,0.2)] transition-colors">
+                      <Search className="h-4 w-4" /> Start Validation
                     </button>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ─── History Tab ─── */}
+            {activeTab === 'history' && (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-bold text-white tracking-tight">Global Migration History</h3>
+                  {currentRun?.fileName && <span className="text-xs font-medium text-zinc-400 bg-white/5 px-3 py-1 rounded-full border border-white/10">Active: {currentRun.fileName}</span>}
+                </div>
+                {history && history.length > 0 ? (
+                  <div className="space-y-3">
+                    {history.map((run) => (
+                      <div key={run.id} className={`flex flex-col sm:flex-row items-start sm:items-center justify-between p-5 border rounded-xl transition-colors ${run.id === runId ? 'border-white bg-white/10 shadow-[0_0_15px_rgba(255,255,255,0.1)]' : 'border-white/10 bg-black/20 hover:bg-white/5 hover:border-white/20'}`}>
+                        <div>
+                          <div className="flex items-center gap-3 mb-1.5">
+                            <span className="text-sm font-bold font-mono text-white tracking-tight">{run.id.substring(0, 8)}</span>
+                            {run.id === runId && <span className="text-[10px] font-bold text-black bg-white px-2 py-0.5 rounded tracking-widest">CURRENT</span>}
+                          </div>
+                          <p className="text-xs text-zinc-400">
+                            {new Date(run.createdAt).toLocaleString()} <span className="mx-2 text-zinc-600">|</span> {run.fileName || 'Unknown File'} <span className="mx-2 text-zinc-600">|</span> {run.tableCount} tables
+                          </p>
+                        </div>
+                        <div className="mt-4 sm:mt-0">
+                          {run.id !== runId && (
+                            <button
+                              onClick={() => {
+                                setSearchParams({ runId: run.id });
+                                setActiveTab('script');
+                              }}
+                              className="text-xs font-bold text-white bg-white/10 hover:bg-white/20 border border-white/10 px-4 py-2 rounded-lg transition-colors"
+                            >
+                              View Run Details
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-white/10 rounded-xl bg-white/5">
+                    <History className="h-8 w-8 text-zinc-500 mb-3" />
+                    <p className="text-sm font-medium text-zinc-400">No history found.</p>
                   </div>
                 )}
               </div>

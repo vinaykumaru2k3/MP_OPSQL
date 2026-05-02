@@ -1,7 +1,7 @@
 ﻿[INFO] Scanning for projects...
 [INFO] 
-[INFO] ------------------< com.migrationplayground:backend >-------------------
-[INFO] Building migration-playground 1.0.0-SNAPSHOT
+[INFO] ------------------< com.schemaforge:backend >-------------------
+[INFO] Building schema-forge 1.0.0-SNAPSHOT
 [INFO]   from pom.xml
 [INFO] --------------------------------[ jar ]---------------------------------
 [INFO] 

@@ -1,6 +1,8 @@
 # Maven build output
 target/
 !.mvn/wrapper/maven-wrapper.jar
+compile_out.txt
+test_out.txt
 
 # IDE files
 .vscode/
@@ -23,6 +25,7 @@ logs/
 # Environment / secrets
 .env
 *.env.local
+application.properties
 
 # Node
 node_modules/

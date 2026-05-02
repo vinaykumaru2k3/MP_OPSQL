@@ -7,6 +7,14 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
 export const migrationApi = {
   upload: async (file: File): Promise<MigrationRun> => {
     const formData = new FormData();
@@ -21,6 +29,11 @@ export const migrationApi = {
 
   analyze: async (id: string): Promise<AnalysisReport> => {
     const response = await api.post(`/${id}/analyze`);
+    return response.data;
+  },
+
+  getRun: async (id: string): Promise<MigrationRun> => {
+    const response = await api.get(`/${id}`);
     return response.data;
   },
 
@@ -54,4 +67,9 @@ export const migrationApi = {
 
   exportJsonUrl: (id: string): string =>
     `${API_BASE_URL}/${id}/export/json`,
+
+  getHistory: async (): Promise<MigrationRun[]> => {
+    const response = await api.get('/history');
+    return response.data;
+  },
 };

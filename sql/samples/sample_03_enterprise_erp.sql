@@ -1,5 +1,5 @@
 -- Sample Enterprise ERP Schema - High Complexity
--- Designed for Migration Playground Sandbox and Validation Simulation Testing
+-- Designed for SchemaForge Sandbox and Validation Simulation Testing
 
 -- ---------------------------------------------------------
 -- Core ERP Tables
