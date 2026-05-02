@@ -108,7 +108,17 @@ public class SchemaService {
         MigrationRun run = migrationRunService.getMigrationRun(runId);
 
         String rawSql = run.getRawSql();
-        String convertedSql = sqlConverter.convert(rawSql);
+
+        // LIVE_DB runs: re-parse the synthesised DDL through the structured schema-aware
+        // converter so the output is properly ordered (Sequences → Tables → Indexes → Views).
+        // FILE runs: use the classic string-based converter.
+        String convertedSql;
+        if ("LIVE_DB".equals(run.getSourceType())) {
+            com.schemaforge.model.ParsedSchema schema = sqlParser.parse(rawSql);
+            convertedSql = sqlConverter.convertFromSchema(schema);
+        } else {
+            convertedSql = sqlConverter.convert(rawSql);
+        }
 
         ConvertedScript script = ConvertedScript.builder()
                 .migrationRunId(runId)
@@ -123,7 +133,7 @@ public class SchemaService {
             return getConvertedScript(runId);
         }
 
-        log.info("Conversion completed and persisted for run ID: {}", runId);
+        log.info("Conversion completed and persisted for run ID: {} (sourceType={})", runId, run.getSourceType());
 
         return ConvertedScriptDto.builder()
                 .migrationRunId(runId)

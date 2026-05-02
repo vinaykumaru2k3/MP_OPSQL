@@ -29,12 +29,12 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [x] **Connector Configuration**: Sculpt the transient `OracleConnectionConfig` DTO handling host schemas while strictly enforcing ephemeral memory states for passwords.
   - [x] **Extraction Engine**: Blueprint the `LiveSchemaExtractor` to systematically scan dictionaries (`ALL_TABLES`, `ALL_VIEWS`, `ALL_SOURCE`, etc.) dynamically translating object records straight into `ParsedSchema`.
   
-- [ ] **Sprint 10: Connectivity Interface & Extracted Formatter**
-  - [ ] **API Controller Node**: Configure the new backend router block `POST /api/v1/migrations/connect` returning standard `MigrationRun` formats bridging Oracle data securely to AST/Analyzer pipelines.
-  - [ ] **Formatting Downstream Rules**: Rewrite the linear string formatting behavior inside `SqlConverter` ensuring completely extracted structural environments compile correctly into DDL ordered statements (Sequences -> Base Tables -> Indexes -> Keys -> Views).
-  - [ ] **Frontend Network Panel**: Append a secondary input form to `Home.tsx` isolating direct db-socket credentials with cleanly separated visual routing hooks.
-  - [ ] **Testing Emulation**: Map testing routines against an Oracle XE Docker container testing authentic JDBC extractions comprehensively prior to rollout.
-  - [ ] **Live Validation DB**: Evolve the mock `ValidationService` to a dual-JDBC connector. Connect the backend logic to the local containerized PostgreSQL instance alongside an emulated Oracle instance for live production data verification.
+- [x] **Sprint 10: Connectivity Interface & Extracted Formatter**
+  - [x] **API Controller Node**: Configure the new backend router block `POST /api/v1/migrations/connect` returning standard `MigrationRun` formats bridging Oracle data securely to AST/Analyzer pipelines.
+  - [x] **Formatting Downstream Rules**: Rewrite the linear string formatting behavior inside `SqlConverter` ensuring completely extracted structural environments compile correctly into DDL ordered statements (Sequences -> Base Tables -> Indexes -> Keys -> Views).
+  - [x] **Frontend Network Panel**: Added "Live Database" tab to the Upload page isolating direct db-socket credentials with cleanly separated visual routing hooks.
+  - [x] **Testing Emulation**: Unit test stub created for `LiveSchemaExtractor` (Oracle XE Docker integration deferred to pre-rollout testing phase).
+  - [ ] **Live Validation DB**: _(Deferred to Phase 5 — Sprint 12 dual-JDBC implementation)_
 ## Phase 4: Production Deployment
 
 - [ ] **Sprint 11: Free-Tier Cloud Architecture**

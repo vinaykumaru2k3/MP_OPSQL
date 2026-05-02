@@ -72,4 +72,16 @@ export const migrationApi = {
     const response = await api.get('/history');
     return response.data;
   },
+
+  connectToDb: async (config: {
+    host: string;
+    port: number;
+    serviceName: string;
+    username: string;
+    password: string;
+    schema?: string;
+  }): Promise<MigrationRun> => {
+    const response = await api.post('/connect', config);
+    return response.data;
+  },
 };
