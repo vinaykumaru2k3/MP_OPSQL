@@ -284,6 +284,7 @@ const Dashboard: React.FC = () => {
                   </Pie>
                   <Tooltip
                     contentStyle={{ fontSize: 12, border: '1px solid rgba(255,255,255,0.1)', borderRadius: 8, backgroundColor: '#18181b', color: '#fff' }}
+                    itemStyle={{ color: '#fff', fontWeight: 600 }}
                   />
                 </PieChart>
               </ResponsiveContainer>
