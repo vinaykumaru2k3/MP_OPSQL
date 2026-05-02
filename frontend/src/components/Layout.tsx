@@ -30,8 +30,8 @@ const Layout: React.FC = () => {
             <Database className="h-4 w-4 text-black" />
           </div>
           <div>
-            <p className="text-white text-sm font-bold tracking-tight leading-tight">Migration</p>
-            <p className="text-zinc-500 text-[10px] leading-tight font-medium uppercase tracking-wider mt-0.5">Playground</p>
+            <p className="text-white text-sm font-bold tracking-tight leading-tight">Schema</p>
+            <p className="text-zinc-500 text-[10px] leading-tight font-medium uppercase tracking-wider mt-0.5">Forge</p>
           </div>
         </div>
 
@@ -83,7 +83,7 @@ const Layout: React.FC = () => {
             <button
               onClick={() => {
                 localStorage.removeItem('token');
-                window.location.href = '/login';
+                window.location.href = '/';
               }}
               className="text-xs font-semibold text-zinc-400 hover:text-white hover:bg-white/10 px-3 py-1.5 rounded-md border border-white/10 transition-colors"
             >
