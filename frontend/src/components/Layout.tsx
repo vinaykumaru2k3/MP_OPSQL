@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
-import { Database, LayoutDashboard, Upload, ChevronRight } from 'lucide-react';
+import { Database, LayoutDashboard, Upload, ChevronRight, Server } from 'lucide-react';
 
 const navItems = [
   { to: '/upload', label: 'Upload', icon: Upload },
+  { to: '/live-db', label: 'Live Database', icon: Server },
   { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
 ];
 
@@ -39,7 +40,9 @@ const Layout: React.FC = () => {
         <nav className="flex-1 px-3 py-4 space-y-1">
           <p className="text-zinc-600 text-[10px] font-bold uppercase tracking-widest px-2 mb-3">Workspace</p>
           {navItems.map(({ to, label, icon: Icon }) => {
-            const active = location.pathname === to || (to === '/dashboard' && location.pathname.startsWith('/dashboard'));
+            const active = location.pathname === to ||
+              (to === '/dashboard' && location.pathname.startsWith('/dashboard')) ||
+              (to === '/live-db' && location.pathname.startsWith('/live-db'));
             return (
               <Link
                 key={to}
@@ -61,7 +64,7 @@ const Layout: React.FC = () => {
         {/* Footer brand */}
         <div className="px-5 py-4 border-t border-white/10 bg-black/20">
           <p className="text-zinc-500 text-[10px] font-medium tracking-wide">Oracle → PostgreSQL</p>
-          <p className="text-zinc-600 text-[10px]">Sprint 8 · v2.0.0</p>
+          <p className="text-zinc-600 text-[10px]">Sprint 10 · v2.1.0</p>
         </div>
       </aside>
 
@@ -73,7 +76,11 @@ const Layout: React.FC = () => {
             <span className="font-semibold text-zinc-300 tracking-tight">SchemaForge</span>
             <ChevronRight className="h-3 w-3 text-zinc-600" />
             <span className="font-medium text-zinc-400">
-              {location.pathname === '/upload' ? 'Upload Schema' : 'Analysis Dashboard'}
+              {location.pathname === '/upload'
+                ? 'Upload Schema'
+                : location.pathname === '/live-db'
+                ? 'Live Database'
+                : 'Analysis Dashboard'}
             </span>
           </div>
           <div className="ml-auto flex items-center gap-3">
