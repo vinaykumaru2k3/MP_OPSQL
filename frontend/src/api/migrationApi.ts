@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { MigrationRun, AnalysisReport, ConvertedScript, ValidationResult } from '../types';
 
-const API_BASE_URL = '/api/v1/migrations';
+const API_BASE_URL = `${import.meta.env.VITE_API_URL || ''}/api/v1/migrations`;
 
 const api = axios.create({
   baseURL: API_BASE_URL,
