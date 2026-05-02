@@ -103,14 +103,27 @@ public class SqlConverter {
             for (com.schemaforge.model.Table table : schema.getTables()) {
                 for (com.schemaforge.model.Constraint c : table.getConstraints()) {
                     if ("FOREIGN KEY".equalsIgnoreCase(c.getType())) {
+                        String fkCols = String.join(", ",
+                                c.getColumns().stream().map(this::pgName).toList());
+                        String constraintName = "fk_" + pgName(table.getName()) + "_"
+                                + String.join("_", c.getColumns()).toLowerCase();
+
                         sb.append("ALTER TABLE ").append(pgName(table.getName()))
-                                .append("\n  ADD CONSTRAINT fk_")
-                                .append(table.getName().toLowerCase()).append("_")
-                                .append(String.join("_", c.getColumns()).toLowerCase())
-                                .append("\n  FOREIGN KEY (")
-                                .append(String.join(", ", c.getColumns().stream()
-                                        .map(this::pgName).toList()))
-                                .append(");\n");
+                                .append("\n  ADD CONSTRAINT ").append(constraintName)
+                                .append("\n  FOREIGN KEY (").append(fkCols).append(")");
+
+                        // Emit REFERENCES clause if we have the resolved table/columns
+                        if (c.getReferencedTable() != null && !c.getReferencedTable().isBlank()) {
+                            String refCols = c.getReferencedColumns().isEmpty()
+                                    ? ""
+                                    : " (" + String.join(", ",
+                                        c.getReferencedColumns().stream().map(this::pgName).toList()) + ")";
+                            sb.append("\n  REFERENCES ").append(pgName(c.getReferencedTable())).append(refCols);
+                        } else {
+                            sb.append("\n  /* TODO [MANUAL_REVIEW]: referenced table could not be resolved */");
+                        }
+
+                        sb.append(";\n");
                     }
                 }
             }

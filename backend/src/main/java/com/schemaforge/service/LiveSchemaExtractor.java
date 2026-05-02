@@ -133,7 +133,7 @@ public class LiveSchemaExtractor {
         // 3. Fetch constraints (PK, FK, UNIQUE) for all tables
         String constraintsSql = """
                 SELECT c.TABLE_NAME, c.CONSTRAINT_NAME, c.CONSTRAINT_TYPE,
-                       cc.COLUMN_NAME, c.R_CONSTRAINT_NAME
+                       cc.COLUMN_NAME, c.R_OWNER, c.R_CONSTRAINT_NAME
                 FROM ALL_CONSTRAINTS c
                 JOIN ALL_CONS_COLUMNS cc
                   ON c.OWNER = cc.OWNER
@@ -142,18 +142,52 @@ public class LiveSchemaExtractor {
                   AND c.CONSTRAINT_TYPE IN ('P', 'U', 'R')
                 ORDER BY c.TABLE_NAME, c.CONSTRAINT_NAME, cc.POSITION
                 """;
+
+        // Step A: build a map of all PK/UNIQUE constraint names → their table for FK resolution
+        // key = owner.constraintName, value = tableName
+        Map<String, String> pkConstraintToTable = new LinkedHashMap<>();
+        // key = owner.constraintName, value = ordered list of columns
+        Map<String, List<String>> pkConstraintToColumns = new LinkedHashMap<>();
+
+        String pkLookupSql = """
+                SELECT c.OWNER, c.CONSTRAINT_NAME, c.TABLE_NAME, cc.COLUMN_NAME
+                FROM ALL_CONSTRAINTS c
+                JOIN ALL_CONS_COLUMNS cc
+                  ON c.OWNER = cc.OWNER AND c.CONSTRAINT_NAME = cc.CONSTRAINT_NAME
+                WHERE c.OWNER = ?
+                  AND c.CONSTRAINT_TYPE IN ('P', 'U')
+                ORDER BY c.CONSTRAINT_NAME, cc.POSITION
+                """;
+        try (PreparedStatement ps = conn.prepareStatement(pkLookupSql)) {
+            ps.setString(1, schema);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    String owner = rs.getString("OWNER");
+                    String cName = rs.getString("CONSTRAINT_NAME");
+                    String tName = rs.getString("TABLE_NAME");
+                    String colName = rs.getString("COLUMN_NAME");
+                    String mapKey = owner + "." + cName;
+                    pkConstraintToTable.putIfAbsent(mapKey, tName);
+                    pkConstraintToColumns.computeIfAbsent(mapKey, k -> new ArrayList<>()).add(colName);
+                }
+            }
+        }
+
         try (PreparedStatement ps = conn.prepareStatement(constraintsSql)) {
             ps.setString(1, schema);
             try (ResultSet rs = ps.executeQuery()) {
-                // Accumulate columns per constraint first
                 Map<String, Constraint> constraintMap = new LinkedHashMap<>();
                 Map<String, String> constraintTable = new LinkedHashMap<>();
+                // track R_OWNER + R_CONSTRAINT_NAME for FK resolution after loop
+                Map<String, String[]> fkRefs = new LinkedHashMap<>();
 
                 while (rs.next()) {
-                    String tableName = rs.getString("TABLE_NAME");
+                    String tableName      = rs.getString("TABLE_NAME");
                     String constraintName = rs.getString("CONSTRAINT_NAME");
                     String constraintType = rs.getString("CONSTRAINT_TYPE");
-                    String columnName = rs.getString("COLUMN_NAME");
+                    String columnName     = rs.getString("COLUMN_NAME");
+                    String rOwner         = rs.getString("R_OWNER");
+                    String rConstraint    = rs.getString("R_CONSTRAINT_NAME");
 
                     String key = tableName + "." + constraintName;
                     if (!constraintMap.containsKey(key)) {
@@ -162,8 +196,30 @@ public class LiveSchemaExtractor {
                         c.setColumns(new ArrayList<>());
                         constraintMap.put(key, c);
                         constraintTable.put(key, tableName);
+                        if ("R".equals(constraintType) && rConstraint != null) {
+                            fkRefs.put(key, new String[]{rOwner != null ? rOwner : schema, rConstraint});
+                        }
                     }
                     constraintMap.get(key).getColumns().add(columnName);
+                }
+
+                // Step B: resolve FK references — look up referenced table and columns
+                for (Map.Entry<String, String[]> fkEntry : fkRefs.entrySet()) {
+                    Constraint fkConstraint = constraintMap.get(fkEntry.getKey());
+                    String[] refInfo = fkEntry.getValue(); // [rOwner, rConstraintName]
+                    String lookupKey = refInfo[0] + "." + refInfo[1];
+
+                    String refTable = pkConstraintToTable.get(lookupKey);
+                    List<String> refCols = pkConstraintToColumns.get(lookupKey);
+
+                    if (refTable != null) {
+                        fkConstraint.setReferencedTable(refTable);
+                        fkConstraint.setReferencedColumns(refCols != null ? refCols : new ArrayList<>());
+                    } else {
+                        // Referenced constraint might be in a different schema — note it but don't fail
+                        log.warn("Could not resolve FK reference for constraint key [{}] -> [{}]",
+                                fkEntry.getKey(), lookupKey);
+                    }
                 }
 
                 // Attach constraints to tables
