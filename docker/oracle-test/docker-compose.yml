@@ -1,0 +1,43 @@
+version: '3.8'
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SchemaForge — Phase 3.5 Live DB Test Environment
+# Oracle Database Free 23c with the SchemaForge e-commerce test schema
+#
+# Usage:
+#   docker compose up -d
+#   (first boot takes 3–5 minutes for Oracle to fully initialize)
+#
+# Connection details for the SchemaForge "Live Database" page:
+#   Host:         localhost
+#   Port:         1521
+#   Service Name: FREEPDB1
+#   Username:     schemaforge
+#   Password:     SchemaForge1!
+#   Schema:       SCHEMAFORGE
+# ─────────────────────────────────────────────────────────────────────────────
+
+services:
+  oracle-free:
+    image: gvenzl/oracle-free:23-slim-faststart
+    container_name: schemaforge-oracle
+    platform: linux/amd64        # required on Apple Silicon / ARM hosts
+    environment:
+      ORACLE_PASSWORD: SchemaForge1!      # SYS / SYSTEM password
+      APP_USER: schemaforge               # application schema owner
+      APP_USER_PASSWORD: SchemaForge1!    # application user password
+    ports:
+      - "1521:1521"
+    volumes:
+      - oracle_data:/opt/oracle/oradata
+      - ./init-scripts:/container-entrypoint-initdb.d   # scripts run on first boot
+    healthcheck:
+      test: ["CMD-SHELL", "healthcheck.sh"]
+      interval: 30s
+      timeout: 30s
+      retries: 15
+      start_period: 180s       # Oracle Free needs time to bootstrap on first run
+
+volumes:
+  oracle_data:
+    driver: local

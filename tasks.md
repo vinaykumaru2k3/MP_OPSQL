@@ -35,7 +35,23 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [x] **Frontend Network Panel**: Added "Live Database" tab to the Upload page isolating direct db-socket credentials with cleanly separated visual routing hooks.
   - [x] **Testing Emulation**: Unit test stub created for `LiveSchemaExtractor` (Oracle XE Docker integration deferred to pre-rollout testing phase).
   - [ ] **Live Validation DB**: _(Deferred to Phase 5 — Sprint 12 dual-JDBC implementation)_
+
+## Phase 3.5: Live DB End-to-End Testing
+
+- [ ] **Sprint 10.5: Oracle Free Test Environment**
+  - [x] **Docker Compose**: Spin up `gvenzl/oracle-free:23-slim-faststart` with `schemaforge` APP_USER and `FREEPDB1` PDB in `docker/oracle-test/`.
+  - [x] **V1 — Sequences**: `seq_customer_id`, `seq_category_id`, `seq_product_id`, `seq_order_id`, `seq_order_item_id`, `seq_audit_id`.
+  - [x] **V2 — Tables**: 6 tables covering VARCHAR2, NUMBER, DATE, TIMESTAMP, CLOB, BLOB with PK, FK (incl. self-referencing), UNIQUE, and CHECK constraints.
+  - [x] **V3 — Indexes**: 13 performance indexes beyond PK/UNIQUE.
+  - [x] **V4 — Views**: 3 views (`vw_order_summary`, `vw_product_catalog`, `vw_low_stock_alert`) using Oracle scalar subqueries and OUTER JOINs.
+  - [x] **V5 — Stored Procedures**: 3 PL/SQL procedures with EXCEPTION handling, FOR UPDATE cursors, and COMMIT/ROLLBACK.
+  - [x] **V6 — Triggers**: 5 triggers — BEFORE INSERT auto-ID from sequences, AFTER UPDATE/DELETE audit capture.
+  - [x] **V7 — Seed Data**: Realistic e-commerce data across all tables.
+  - [ ] **Live Extraction Test**: Run `POST /connect` from the frontend and verify the dashboard shows all 6 tables, sequences, views, and stored programs.
+  - [ ] **Conversion Validation**: Run the full Analyze → Convert pipeline on the LIVE_DB run and verify FK `REFERENCES` clauses are correctly emitted.
+
 ## Phase 4: Production Deployment
+
 
 - [ ] **Sprint 11: Free-Tier Cloud Architecture**
   - [ ] **Dockerisation**: Construct a multi-stage `Dockerfile` within the backend restricting JVM memory allocations (`-Xmx400m`) preventing Railway out-of-memory terminations.
