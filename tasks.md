@@ -23,11 +23,11 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [x] **Data Diff UI**: Construct a Migration History Diff view on the frontend that natively surfaces differential updates when a user uploads two sequential iterations of the same SQL file.
 ## Phase 3: Live Schema Extraction Engine
 
-- [ ] **Sprint 9: Dynamic Oracle JDBC Extractors**
-  - [ ] **Maven Configurations**: Import the `ojdbc11` driver to the backend `pom.xml`.
-  - [ ] **Data Hierarchy Upgrades**: Extend the `ParsedSchema` central models to encapsulate Oracle Indexes, Views, PK/FK Constraints, Stored Procedures, Triggers, and Sequences natively.
-  - [ ] **Connector Configuration**: Sculpt the transient `OracleConnectionConfig` DTO handling host schemas while strictly enforcing ephemeral memory states for passwords.
-  - [ ] **Extraction Engine**: Blueprint the `LiveSchemaExtractor` to systematically scan dictionaries (`ALL_TABLES`, `ALL_VIEWS`, `ALL_SOURCE`, etc.) dynamically translating object records straight into `ParsedSchema`.
+- [x] **Sprint 9: Dynamic Oracle JDBC Extractors**
+  - [x] **Maven Configurations**: Import the `ojdbc11` driver to the backend `pom.xml`.
+  - [x] **Data Hierarchy Upgrades**: Extend the `ParsedSchema` central models to encapsulate Oracle Indexes, Views, PK/FK Constraints, Stored Procedures, Triggers, and Sequences natively.
+  - [x] **Connector Configuration**: Sculpt the transient `OracleConnectionConfig` DTO handling host schemas while strictly enforcing ephemeral memory states for passwords.
+  - [x] **Extraction Engine**: Blueprint the `LiveSchemaExtractor` to systematically scan dictionaries (`ALL_TABLES`, `ALL_VIEWS`, `ALL_SOURCE`, etc.) dynamically translating object records straight into `ParsedSchema`.
   
 - [ ] **Sprint 10: Connectivity Interface & Extracted Formatter**
   - [ ] **API Controller Node**: Configure the new backend router block `POST /api/v1/migrations/connect` returning standard `MigrationRun` formats bridging Oracle data securely to AST/Analyzer pipelines.
