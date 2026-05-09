@@ -138,11 +138,24 @@ const Dashboard: React.FC = () => {
   const handleConvert = () => convertMutation.mutate();
   const handleValidate = () => validateMutation.mutate();
 
-  const handleExport = (type: 'pdf' | 'json') => {
+  const handleExport = async (type: 'pdf' | 'json') => {
     if (!runId) return;
-    window.location.href = type === 'pdf'
-      ? migrationApi.exportPdfUrl(runId)
-      : migrationApi.exportJsonUrl(runId);
+    try {
+      const blob = type === 'pdf'
+        ? await migrationApi.exportPdf(runId)
+        : await migrationApi.exportJson(runId);
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `report_${runId.substring(0, 8)}.${type}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      setError(`Failed to export ${type.toUpperCase()} report.`);
+    }
   };
 
   /* ── No run selected ── */

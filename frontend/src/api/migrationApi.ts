@@ -62,11 +62,15 @@ export const migrationApi = {
     return response.data;
   },
 
-  exportPdfUrl: (id: string): string =>
-    `${API_BASE_URL}/${id}/export/pdf`,
+  exportPdf: async (id: string): Promise<Blob> => {
+    const response = await api.get(`/${id}/export/pdf`, { responseType: 'blob' });
+    return response.data;
+  },
 
-  exportJsonUrl: (id: string): string =>
-    `${API_BASE_URL}/${id}/export/json`,
+  exportJson: async (id: string): Promise<Blob> => {
+    const response = await api.get(`/${id}/export/json`, { responseType: 'blob' });
+    return response.data;
+  },
 
   getHistory: async (): Promise<MigrationRun[]> => {
     const response = await api.get('/history');
