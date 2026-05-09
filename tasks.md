@@ -50,26 +50,50 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [x] **Live Extraction Test**: Run `POST /connect` from the frontend and verify the dashboard shows all 6 tables, sequences, views, and stored programs.
   - [x] **Conversion Validation**: Run the full Analyze → Convert pipeline on the LIVE_DB run and verify FK `REFERENCES` clauses are correctly emitted.
 
-## Phase 4: Production Deployment
+## Phase 4: SaaS & Enterprise Readiness
 
+- [ ] **Sprint 11: Multi-Tenant Architecture & Auth Expansion**
+  - [ ] **User Entities**: Create `User` JPA entity and update `MigrationRun` to have a `@ManyToOne` relationship with `User`.
+  - [ ] **Registration Flow**: Add `POST /api/v1/auth/register` and `POST /api/v1/auth/login` endpoints. Remove hardcoded `admin` credentials from `SecurityConfig`.
+  - [ ] **Data Isolation**: Update `MigrationRunRepository` queries to filter by the authenticated user's ID. Update services to verify ownership before accessing runs.
+  - [ ] **Frontend Auth**: Build a true registration/login flow, store the JWT securely, and integrate with the frontend API client.
 
-- [ ] **Sprint 11: Free-Tier Cloud Architecture**
+- [ ] **Sprint 12: Projects, Workspaces & UX Optimization**
+  - [ ] **Projects Hierarchy**: Create a `Project` entity (`User` has many `Project`s, `Project` has many `MigrationRun`s).
+  - [ ] **Saved Database Profiles**: Create a `DatabaseProfile` entity to securely store connection strings (with encrypted passwords) linked to a `User` or `Project`.
+  - [ ] **Pagination API**: Update `GET /api/v1/migrations/history` to use Spring Data `Pageable` (e.g., `?page=0&size=10`).
+  - [ ] **History UI Update**: Implement pagination controls in the `Dashboard` History tab to handle thousands of runs without memory bloat.
+
+- [ ] **Sprint 13: Advanced Engine Configs & Throttling**
+  - [ ] **Granular Live Extraction**: Update `POST /connect` DTO and `LiveSchemaExtractor` to accept include/exclude filters (e.g., specific tables, ignore views).
+  - [ ] **Custom Type Mappings**: Expose a configuration payload in the `/convert` endpoint allowing users to override default mappings (e.g., `NUMBER` -> `NUMERIC` vs `INTEGER`).
+  - [ ] **Rate Limiting**: Implement a basic rate limiter filter (e.g., using Bucket4j) to prevent abuse of the `/connect` and `/upload` endpoints.
+  - [ ] **File Size Enforcement**: Add strict multi-part file size limits (e.g., 5MB max) in `application.properties` and handle `MaxUploadSizeExceededException` gracefully.
+
+## Phase 5: Production Deployment
+
+- [ ] **Sprint 14: Free-Tier Cloud Architecture**
   - [ ] **Dockerisation**: Construct a multi-stage `Dockerfile` within the backend restricting JVM memory allocations (`-Xmx400m`) preventing Railway out-of-memory terminations.
   - [ ] **Environment Injection**: Strip cleartext database references in `application.properties` implementing parameterised `${DB_URL}` routing placeholders.
   - [ ] **CORS & Routing**: Reconfigure CORS policies passing dynamic `FRONTEND_URL` identifiers. Update frontend `migrationApi.ts` allowing dynamic `VITE_API_URL` routing mapping separated Vercel frontends to Railway backends.
   - [ ] **CI/CD Deployment Pipelines**: Alter GitHub Actions extending deploy steps specific to `main` branch merging (`railway up` & `vercel --prod`), injecting token secrets automatically scaling the playground live to the web.
 
-## Phase 5: ETL Pipeline & Live Validation
+## Phase 6: ETL Pipeline & Live Validation
 
-- [ ] **Sprint 12: Dual-JDBC & Structural Diffing (Phase 5a)**
+- [ ] **Sprint 15: Dual-JDBC & Structural Diffing (Phase 6a)**
   - [ ] **Dual Connections**: Architect `@Primary` and secondary Spring `DataSource` beans concurrently bridging PostgreSQL and Oracle runtime properties natively.
   - [ ] **Schema Extraction Diff**: Expand the validation engine to scan both data dictionaries actively checking parity between generated structures and Oracle objects without reading rows.
 
-- [ ] **Sprint 13: Spring Batch ETL MVP (Phase 5b)**
+- [ ] **Sprint 16: Spring Batch ETL MVP (Phase 6b)**
   - [ ] **Job Scaffolding**: Import `spring-boot-starter-batch` and configure the core JobRepository.
   - [ ] **Chunking Execution**: Configure `JdbcCursorItemReader` and `JdbcBatchItemWriter` chunking standard rows (<10,000 limits) between databases targeting a single primitive test table containing no LOBs or dependencies.
 
-- [ ] **Sprint 14: Complex Semantics & Enterprise Scale (Phase 5c)**
+- [ ] **Sprint 17: Complex Semantics & Enterprise Scale (Phase 6c)**
   - [ ] **LOB Streaming**: Integrate `oracle.sql.CLOB` reader profiles handling large binary footprints avoiding JVM OutOfMemory crashes.
   - [ ] **Dependency Deferment**: Dynamically inject `SET CONSTRAINTS ALL DEFERRED` within transaction envelopes enabling disjointed Foreign Key pipeline processing.
   - [ ] **Semantics Transformation**: Establish `ItemProcessor` interceptors handling explicit Oracle `''` vs PostgreSQL `NULL` mappings and explicit numerical precisions mappings prior to PostgreSQL write phases.
+
+## Phase 7: Future Enhancements
+
+- [ ] **Sprint 18: Persistence Layer Robustness**
+  - [ ] **Database Column Sizing**: Audit and update all `MigrationRun` JPA entities to explicitly use `@Lob` or `columnDefinition="TEXT"` for `originalSql` and `convertedSql` fields. This ensures the Neon database can support massive enterprise SQL payloads without string-truncation crashes.
