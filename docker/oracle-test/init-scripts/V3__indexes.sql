@@ -3,7 +3,8 @@
 -- =============================================================================
 
 -- Customers
-CREATE INDEX idx_customers_email    ON customers  (email);
+-- NOTE: idx_customers_email and idx_products_sku are implicitly created by UNIQUE constraints
+-- and are intentionally omitted here to avoid ORA-01408.
 CREATE INDEX idx_customers_status   ON customers  (status);
 CREATE INDEX idx_customers_lastname ON customers  (last_name, first_name);
 
@@ -11,6 +12,7 @@ CREATE INDEX idx_customers_lastname ON customers  (last_name, first_name);
 CREATE INDEX idx_products_category  ON products   (category_id);
 CREATE INDEX idx_products_price     ON products   (price);
 CREATE INDEX idx_products_active    ON products   (is_active, stock_qty);
+-- idx_products_sku omitted — covered by UNIQUE constraint
 
 -- Orders
 CREATE INDEX idx_orders_customer    ON orders     (customer_id);

@@ -2,7 +2,50 @@
 
 **Oracle-to-PostgreSQL Migration Assistant**
 
+> ⚠️ **Internal Tool — Not for Public Distribution**
+>
+> SchemaForge is an internal engineering tool. It uses a single shared admin account and does not support public user registration. Do not expose the application to the public internet without first implementing per-user authentication and data isolation.
+
 A full-stack enterprise application that automates the detection, analysis, and conversion of Oracle SQL schemas and scripts into PostgreSQL-compatible equivalents. Built with Spring Boot and React, it is designed for database engineers, developers, and architects managing real-world database migrations.
+
+---
+
+## Access & Credentials
+
+### Application Login
+
+SchemaForge uses a single shared admin account. All team members use the same credentials.
+
+| Field | Value |
+|---|---|
+| **URL** | `http://localhost:5173` |
+| **Username** | `admin` |
+| **Password** | `secret` |
+
+> These are the default fallback values from `AuthController.java`. If your `application.properties` defines `admin.username` and `admin.password` overrides, use those instead.
+
+### Oracle Test Database (Phase 3.5 Local Testing)
+
+A pre-configured Oracle Free 23c Docker environment is provided for live extraction testing. Start it from `docker/oracle-test/`:
+
+```bash
+cd docker/oracle-test
+docker compose up -d
+# First boot takes 3–5 minutes. Check: docker ps (wait for 'healthy' status)
+```
+
+Then use these connection details in the **Live Database** page:
+
+| Field | Value |
+|---|---|
+| **Host** | `localhost` |
+| **Port** | `1521` |
+| **Service Name** | `FREEPDB1` |
+| **Username** | `schemaforge` |
+| **Password** | `SchemaForge1!` |
+| **Schema** | `SCHEMAFORGE` |
+
+The test schema contains 6 tables, 3 views, 6 sequences, 3 stored procedures, 5 triggers, and realistic e-commerce seed data.
 
 ---
 

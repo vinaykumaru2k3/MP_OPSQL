@@ -8,21 +8,34 @@
   box-sizing: border-box;
 }
 
+/* ── Light mode (default) ───────────────────────────────────── */
 body {
   margin: 0;
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   background-color: #f4f5f7;
   color: #1a1f2e;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-/* Scrollbar */
+/* ── Dark mode ──────────────────────────────────────────────── */
+html.dark body {
+  background-color: #09090b;
+  color: #ffffff;
+}
+
+/* ── Scrollbar — light ──────────────────────────────────────── */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #f0f0f2; }
+::-webkit-scrollbar-track { background: #e8eaed; }
 ::-webkit-scrollbar-thumb { background: #c8cad0; border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: #9ea3ae; }
 
-/* Focus ring */
+/* ── Scrollbar — dark ───────────────────────────────────────── */
+html.dark ::-webkit-scrollbar-track { background: #18181b; }
+html.dark ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 3px; }
+html.dark ::-webkit-scrollbar-thumb:hover { background: #52525b; }
+
+/* ── Focus ring ─────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid #1a56db;
   outline-offset: 2px;

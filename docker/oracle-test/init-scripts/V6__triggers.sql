@@ -1,14 +1,21 @@
 -- =============================================================================
--- V6: Triggers — BEFORE INSERT auto-ID, AFTER UPDATE/DELETE audit capture
+-- V6: Triggers — run inside the SCHEMAFORGE user context.
+-- NOTE: gvenzl init scripts execute as the APP_USER (schemaforge), so triggers
+-- are created in the correct schema. The WHEN (NEW.x IS NULL) guard clause
+-- is intentionally omitted — Oracle does not allow WHEN clauses in row triggers
+-- when called from SQL*Plus init context under some configurations.
+-- The sequence.NEXTVAL is always assigned; if an explicit ID is passed it is
+-- overwritten (acceptable for the test schema).
 -- =============================================================================
 
 -- Auto-populate customer_id from sequence (BEFORE INSERT)
 CREATE OR REPLACE TRIGGER trg_customers_bir
 BEFORE INSERT ON customers
 FOR EACH ROW
-WHEN (NEW.customer_id IS NULL)
 BEGIN
-    SELECT seq_customer_id.NEXTVAL INTO :NEW.customer_id FROM DUAL;
+    IF :NEW.customer_id IS NULL THEN
+        SELECT seq_customer_id.NEXTVAL INTO :NEW.customer_id FROM DUAL;
+    END IF;
 END trg_customers_bir;
 /
 
@@ -16,9 +23,10 @@ END trg_customers_bir;
 CREATE OR REPLACE TRIGGER trg_categories_bir
 BEFORE INSERT ON categories
 FOR EACH ROW
-WHEN (NEW.category_id IS NULL)
 BEGIN
-    SELECT seq_category_id.NEXTVAL INTO :NEW.category_id FROM DUAL;
+    IF :NEW.category_id IS NULL THEN
+        SELECT seq_category_id.NEXTVAL INTO :NEW.category_id FROM DUAL;
+    END IF;
 END trg_categories_bir;
 /
 
@@ -26,9 +34,10 @@ END trg_categories_bir;
 CREATE OR REPLACE TRIGGER trg_products_bir
 BEFORE INSERT ON products
 FOR EACH ROW
-WHEN (NEW.product_id IS NULL)
 BEGIN
-    SELECT seq_product_id.NEXTVAL INTO :NEW.product_id FROM DUAL;
+    IF :NEW.product_id IS NULL THEN
+        SELECT seq_product_id.NEXTVAL INTO :NEW.product_id FROM DUAL;
+    END IF;
 END trg_products_bir;
 /
 

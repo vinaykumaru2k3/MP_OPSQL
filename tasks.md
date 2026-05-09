@@ -47,8 +47,8 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [x] **V5 — Stored Procedures**: 3 PL/SQL procedures with EXCEPTION handling, FOR UPDATE cursors, and COMMIT/ROLLBACK.
   - [x] **V6 — Triggers**: 5 triggers — BEFORE INSERT auto-ID from sequences, AFTER UPDATE/DELETE audit capture.
   - [x] **V7 — Seed Data**: Realistic e-commerce data across all tables.
-  - [ ] **Live Extraction Test**: Run `POST /connect` from the frontend and verify the dashboard shows all 6 tables, sequences, views, and stored programs.
-  - [ ] **Conversion Validation**: Run the full Analyze → Convert pipeline on the LIVE_DB run and verify FK `REFERENCES` clauses are correctly emitted.
+  - [x] **Live Extraction Test**: Run `POST /connect` from the frontend and verify the dashboard shows all 6 tables, sequences, views, and stored programs.
+  - [x] **Conversion Validation**: Run the full Analyze → Convert pipeline on the LIVE_DB run and verify FK `REFERENCES` clauses are correctly emitted.
 
 ## Phase 4: Production Deployment
 
