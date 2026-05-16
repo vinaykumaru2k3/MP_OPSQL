@@ -76,11 +76,11 @@ const Landing: React.FC = () => {
           </motion.div>
 
           <motion.h1 variants={itemVariants} className="text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tighter mb-6">
-            <span className="text-transparent bg-clip-text bg-gradient-to-br from-zinc-900 via-zinc-700 to-zinc-500 dark:from-white dark:via-zinc-200 dark:to-zinc-500">
+            <span className="text-transparent bg-clip-text bg-gradient-to-br from-zinc-900 via-zinc-700 to-zinc-500 dark:from-white dark:via-zinc-200 dark:to-zinc-500 pb-1 pr-2 inline-block">
               Migrate Databases
             </span>
             <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-violet-400 to-rose-400 drop-shadow-sm">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-400 via-violet-400 to-rose-400 drop-shadow-sm pb-1 pr-2 inline-block">
               Without the Friction
             </span>
           </motion.h1>
