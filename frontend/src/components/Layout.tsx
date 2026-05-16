@@ -13,7 +13,7 @@ const navItems = [
 const Layout: React.FC = () => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
-  const { logout } = useAuth();
+  const { logout, username } = useAuth();
 
   const isAuthPage = location.pathname === '/' || location.pathname === '/login';
 
@@ -104,6 +104,17 @@ const Layout: React.FC = () => {
                 ? <Sun className="h-4 w-4" />
                 : <Moon className="h-4 w-4" />}
             </button>
+
+            {username && (
+              <div className="flex items-center gap-2 border-l border-zinc-200 dark:border-white/10 pl-3 ml-1">
+                <div className="w-6 h-6 rounded-full bg-zinc-200 dark:bg-white/20 flex items-center justify-center text-[10px] font-bold text-zinc-700 dark:text-zinc-200 uppercase">
+                  {username.charAt(0)}
+                </div>
+                <span className="text-xs font-medium text-zinc-700 dark:text-zinc-300">
+                  {username}
+                </span>
+              </div>
+            )}
 
             <button
               onClick={() => {
