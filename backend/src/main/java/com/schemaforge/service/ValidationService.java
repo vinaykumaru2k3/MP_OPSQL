@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class ValidationService {
     private static final Logger log = LoggerFactory.getLogger(ValidationService.class);
 
-    private final MigrationRunRepository migrationRunRepository;
+    private final MigrationRunService migrationRunService;
     private final ValidationResultRepository validationResultRepository;
     private final SqlParser sqlParser;
 
@@ -32,8 +32,7 @@ public class ValidationService {
         }
         log.info("Starting validation for migration ID: {}", migrationId);
         
-        MigrationRun run = migrationRunRepository.findById(migrationId)
-                .orElseThrow(() -> new IllegalArgumentException("Migration run not found: " + migrationId));
+        MigrationRun run = migrationRunService.getMigrationRun(migrationId);
         
         ParsedSchema schema = sqlParser.parse(run.getRawSql());
         List<Table> tables = schema.getTables();
@@ -92,6 +91,7 @@ public class ValidationService {
     }
 
     public ValidationResultDto getValidationResult(UUID migrationId) {
+        migrationRunService.getMigrationRun(migrationId);
         ValidationResult result = validationResultRepository.findById(migrationId)
                 .orElseThrow(() -> new IllegalArgumentException("Validation result not found for ID: " + migrationId));
         return mapToDto(result);

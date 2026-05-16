@@ -89,6 +89,7 @@ public class SchemaService {
     }
 
     public AnalysisReportDto getAnalysis(UUID runId) {
+        migrationRunService.getMigrationRun(runId);
         AnalysisReport report = analysisReportRepository.findById(runId)
                 .orElseThrow(() -> new IllegalArgumentException("Analysis report not found for ID: " + runId));
 
@@ -143,6 +144,7 @@ public class SchemaService {
     }
 
     public ConvertedScriptDto getConvertedScript(UUID runId) {
+        migrationRunService.getMigrationRun(runId);
         ConvertedScript script = convertedScriptRepository.findById(runId)
                 .orElseThrow(() -> new IllegalArgumentException("Converted script not found for ID: " + runId));
 

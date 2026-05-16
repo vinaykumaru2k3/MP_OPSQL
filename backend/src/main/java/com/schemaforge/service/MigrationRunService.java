@@ -19,10 +19,18 @@ public class MigrationRunService {
 
     private final MigrationRunRepository migrationRunRepository;
     private final SqlParser sqlParser;
+    private final com.schemaforge.repository.UserRepository userRepository;
 
-    public MigrationRunService(MigrationRunRepository migrationRunRepository, SqlParser sqlParser) {
+    public MigrationRunService(MigrationRunRepository migrationRunRepository, SqlParser sqlParser, com.schemaforge.repository.UserRepository userRepository) {
         this.migrationRunRepository = migrationRunRepository;
         this.sqlParser = sqlParser;
+        this.userRepository = userRepository;
+    }
+
+    private com.schemaforge.model.User getCurrentUser() {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        return userRepository.findByUsername(username)
+            .orElseThrow(() -> new IllegalArgumentException("Authenticated user not found in database"));
     }
 
     public MigrationRun uploadAndParse(MultipartFile file, String fileNameOverride) {
@@ -53,6 +61,7 @@ public class MigrationRunService {
                 .tableCount(tableCount)
                 .columnCount(colCount)
                 .rawSql(content)
+                .user(getCurrentUser())
                 .build();
                 
             run = migrationRunRepository.save(run);
@@ -91,6 +100,7 @@ public class MigrationRunService {
                 .tableCount(tableCount)
                 .columnCount(colCount)
                 .rawSql(rawSql)
+                .user(getCurrentUser())
                 .build();
         run.setSourceType("LIVE_DB");
 
@@ -145,15 +155,20 @@ public class MigrationRunService {
     }
 
     public MigrationRun getMigrationRun(UUID runId) {
-        return migrationRunRepository.findById(runId)
+        MigrationRun run = migrationRunRepository.findById(runId)
                 .orElseThrow(() -> new IllegalArgumentException("Migration run not found for ID: " + runId));
+        if (run.getUser() == null || !run.getUser().getId().equals(getCurrentUser().getId())) {
+            throw new IllegalArgumentException("Access Denied");
+        }
+        return run;
     }
 
     public java.util.List<MigrationRun> getHistory(String fileName) {
+        UUID userId = getCurrentUser().getId();
         if (fileName == null || fileName.trim().isEmpty()) {
-            return migrationRunRepository.findAllByOrderByCreatedAtDesc();
+            return migrationRunRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
         }
-        return migrationRunRepository.findByFileNameOrderByCreatedAtDesc(fileName);
+        return migrationRunRepository.findByUserIdAndFileNameOrderByCreatedAtDesc(userId, fileName);
     }
 }
 

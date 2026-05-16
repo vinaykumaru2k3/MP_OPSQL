@@ -3,21 +3,26 @@ import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api/authApi';
 import { Loader2, Lock, AlertCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useAuth } from '../context/AuthContext';
 
 const Login: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isRegister, setIsRegister] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
     try {
-      const res = await authApi.login(username, password);
-      localStorage.setItem('token', res.token);
+      const res = isRegister 
+        ? await authApi.register(username, password)
+        : await authApi.login(username, password);
+      login(res.token);
       navigate('/upload');
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
@@ -49,8 +54,12 @@ const Login: React.FC = () => {
             <Lock className="h-6 w-6 text-zinc-700 dark:text-white" />
           </div>
         </div>
-        <h2 className="text-2xl font-bold text-center text-zinc-900 dark:text-white mb-2 tracking-tight">Admin Login</h2>
-        <p className="text-sm text-center text-zinc-500 dark:text-zinc-400 mb-8">Authenticate to access the workspace</p>
+        <h2 className="text-2xl font-bold text-center text-zinc-900 dark:text-white mb-2 tracking-tight">
+          {isRegister ? 'Create Account' : 'Welcome Back'}
+        </h2>
+        <p className="text-sm text-center text-zinc-500 dark:text-zinc-400 mb-8">
+          {isRegister ? 'Register to access the workspace' : 'Authenticate to access the workspace'}
+        </p>
         
         {error && (
           <motion.div 
@@ -63,7 +72,7 @@ const Login: React.FC = () => {
           </motion.div>
         )}
 
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
             <label className="block text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider">Username</label>
             <input
@@ -91,9 +100,19 @@ const Login: React.FC = () => {
             disabled={loading}
             className="w-full flex items-center justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white dark:text-black bg-zinc-900 dark:bg-white hover:bg-zinc-700 dark:hover:bg-zinc-200 focus:outline-none disabled:bg-zinc-300 dark:disabled:bg-zinc-600 disabled:text-zinc-500 dark:disabled:text-zinc-400 transition-all mt-4"
           >
-            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign In to Workspace'}
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (isRegister ? 'Sign Up' : 'Sign In')}
           </button>
         </form>
+
+        <div className="mt-6 text-center">
+          <button 
+            type="button" 
+            onClick={() => { setIsRegister(!isRegister); setError(null); }}
+            className="text-sm text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors"
+          >
+            {isRegister ? 'Already have an account? Sign in' : 'Need an account? Create one'}
+          </button>
+        </div>
       </motion.div>
     </div>
   );

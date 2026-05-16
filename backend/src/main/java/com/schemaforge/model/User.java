@@ -6,6 +6,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,50 +17,31 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
-@jakarta.persistence.Table(name = "migration_runs")
+@Table(name = "users")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class MigrationRun {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @jakarta.persistence.ManyToOne
-    @jakarta.persistence.JoinColumn(name = "user_id")
-    private User user;
-
-    @Column(name = "file_name", nullable = false)
-    private String fileName;
+    @Column(nullable = false, unique = true)
+    private String username;
 
     @Column(nullable = false)
-    private String status;
-
-    @Column(name = "table_count")
-    private Integer tableCount;
-
-    @Column(name = "column_count")
-    private Integer columnCount;
+    private String password;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
-
-    @Column(name = "raw_sql", columnDefinition = "TEXT")
-    private String rawSql;
-
-    @Column(name = "source_type", nullable = false)
-    private String sourceType = "FILE"; // FILE or LIVE_DB
 
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {
             createdAt = Instant.now();
-        }
-        if (status == null) {
-            status = "PENDING";
         }
     }
 }

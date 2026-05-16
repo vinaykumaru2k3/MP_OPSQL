@@ -7,6 +7,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface MigrationRunRepository extends JpaRepository<MigrationRun, UUID> {
-    java.util.List<MigrationRun> findByFileNameOrderByCreatedAtDesc(String fileName);
-    java.util.List<MigrationRun> findAllByOrderByCreatedAtDesc();
+    java.util.List<MigrationRun> findByUserIdAndFileNameOrderByCreatedAtDesc(UUID userId, String fileName);
+    java.util.List<MigrationRun> findAllByUserIdOrderByCreatedAtDesc(UUID userId);
 }

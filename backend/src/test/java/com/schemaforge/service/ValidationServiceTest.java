@@ -3,7 +3,7 @@ package com.schemaforge.service;
 import com.schemaforge.dto.ValidationResultDto;
 import com.schemaforge.model.*;
 import com.schemaforge.parser.SqlParser;
-import com.schemaforge.repository.MigrationRunRepository;
+import com.schemaforge.service.MigrationRunService;
 import com.schemaforge.repository.ValidationResultRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -20,7 +20,7 @@ import static org.mockito.Mockito.*;
 class ValidationServiceTest {
 
     @Mock
-    private MigrationRunRepository migrationRunRepository;
+    private MigrationRunService migrationRunService;
 
     @Mock
     private ValidationResultRepository validationResultRepository;
@@ -33,7 +33,7 @@ class ValidationServiceTest {
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        validationService = new ValidationService(migrationRunRepository, validationResultRepository, sqlParser);
+        validationService = new ValidationService(migrationRunService, validationResultRepository, sqlParser);
     }
 
     @Test
@@ -49,7 +49,7 @@ class ValidationServiceTest {
         ParsedSchema schema = new ParsedSchema();
         schema.getTables().add(table);
 
-        when(migrationRunRepository.findById(runId)).thenReturn(Optional.of(run));
+        when(migrationRunService.getMigrationRun(runId)).thenReturn(run);
         when(sqlParser.parse(anyString())).thenReturn(schema);
         // Row counts are now deterministic hash-based — no mock needed
 
@@ -76,7 +76,7 @@ class ValidationServiceTest {
         ParsedSchema schema = new ParsedSchema();
         schema.getTables().add(table);
 
-        when(migrationRunRepository.findById(runId)).thenReturn(Optional.of(run));
+        when(migrationRunService.getMigrationRun(runId)).thenReturn(run);
         when(sqlParser.parse(anyString())).thenReturn(schema);
 
         ValidationResultDto result = validationService.validateMigration(runId);
