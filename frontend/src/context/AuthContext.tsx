@@ -19,7 +19,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
         setUsername(payload.sub || null);
-      } catch (e) {
+      } catch {
         console.error("Invalid token format");
         setUsername(null);
       }
@@ -45,6 +45,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
