@@ -157,7 +157,7 @@ public class MigrationRunService {
     public MigrationRun getMigrationRun(UUID runId) {
         MigrationRun run = migrationRunRepository.findById(runId)
                 .orElseThrow(() -> new IllegalArgumentException("Migration run not found for ID: " + runId));
-        if (run.getUser() != null && !run.getUser().getId().equals(getCurrentUser().getId())) {
+        if (run.getUser() == null || !run.getUser().getId().equals(getCurrentUser().getId())) {
             throw new IllegalArgumentException("Access Denied");
         }
         return run;

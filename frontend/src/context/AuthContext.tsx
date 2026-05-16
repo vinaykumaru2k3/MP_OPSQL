@@ -25,6 +25,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     } else {
       localStorage.removeItem('token');
+      localStorage.removeItem('lastRunId');
       setUsername(null);
     }
   }, [token]);
