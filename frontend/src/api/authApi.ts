@@ -7,4 +7,9 @@ export const authApi = {
     const response = await axios.post(`${API_BASE_URL}/login`, { username, password });
     return response.data;
   },
+  register: async (username: string, password: string): Promise<{ token: string }> => {
+    const response = await axios.post(`${API_BASE_URL}/register`, { username, password });
+    return response.data;
+  },
 };
+

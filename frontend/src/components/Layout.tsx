@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, Outlet, useLocation } from 'react-router-dom';
 import { Database, LayoutDashboard, Upload, ChevronRight, Server, Sun, Moon } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
+import { useAuth } from '../context/AuthContext';
 
 const navItems = [
   { to: '/upload', label: 'Upload', icon: Upload },
@@ -12,6 +13,7 @@ const navItems = [
 const Layout: React.FC = () => {
   const location = useLocation();
   const { theme, toggleTheme } = useTheme();
+  const { logout } = useAuth();
 
   const isAuthPage = location.pathname === '/' || location.pathname === '/login';
 
@@ -66,7 +68,7 @@ const Layout: React.FC = () => {
         {/* Footer brand */}
         <div className="px-5 py-4 border-t border-zinc-200 dark:border-white/10 bg-zinc-50/50 dark:bg-black/20">
           <p className="text-zinc-400 dark:text-zinc-500 text-[10px] font-medium tracking-wide">Oracle → PostgreSQL</p>
-          <p className="text-zinc-300 dark:text-zinc-600 text-[10px]">Sprint 10 · v2.1.0</p>
+          <p className="text-zinc-300 dark:text-zinc-600 text-[10px]">Sprint 11 · v2.2.0</p>
         </div>
       </aside>
 
@@ -105,8 +107,7 @@ const Layout: React.FC = () => {
 
             <button
               onClick={() => {
-                localStorage.removeItem('token');
-                window.location.href = '/';
+                logout();
               }}
               className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100 dark:hover:bg-white/10 px-3 py-1.5 rounded-md border border-zinc-200 dark:border-white/10 transition-colors"
             >

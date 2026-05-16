@@ -2,8 +2,7 @@ package com.schemaforge.controller;
 
 import com.schemaforge.dto.AuthResponse;
 import com.schemaforge.dto.LoginRequest;
-import com.schemaforge.security.JwtUtil;
-import org.springframework.beans.factory.annotation.Value;
+import com.schemaforge.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,24 +11,27 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    @Value("${admin.username:admin}")
-    private String adminUsername;
+    private final AuthService authService;
 
-    @Value("${admin.password:secret}")
-    private String adminPassword;
+    public AuthController(AuthService authService) {
+        this.authService = authService;
+    }
 
-    private final JwtUtil jwtUtil;
-
-    public AuthController(JwtUtil jwtUtil) {
-        this.jwtUtil = jwtUtil;
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody LoginRequest request) {
+        try {
+            return ResponseEntity.ok(authService.register(request));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
-        if (adminUsername.equals(loginRequest.getUsername()) && adminPassword.equals(loginRequest.getPassword())) {
-            String token = jwtUtil.generateToken(adminUsername);
-            return ResponseEntity.ok(new AuthResponse(token));
+    public ResponseEntity<?> login(@RequestBody LoginRequest request) {
+        try {
+            return ResponseEntity.ok(authService.login(request));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 }

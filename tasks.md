@@ -57,18 +57,21 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [ ] **Registration Flow**: Add `POST /api/v1/auth/register` and `POST /api/v1/auth/login` endpoints. Remove hardcoded `admin` credentials from `SecurityConfig`.
   - [ ] **Data Isolation**: Update `MigrationRunRepository` queries to filter by the authenticated user's ID. Update services to verify ownership before accessing runs.
   - [ ] **Frontend Auth**: Build a true registration/login flow, store the JWT securely, and integrate with the frontend API client.
+  - [ ] **Documentation**: Update the README.md and create/update a sprint-specific document in Docs/ summarizing the sprint's architectural changes.
 
 - [ ] **Sprint 12: Projects, Workspaces & UX Optimization**
   - [ ] **Projects Hierarchy**: Create a `Project` entity (`User` has many `Project`s, `Project` has many `MigrationRun`s).
   - [ ] **Saved Database Profiles**: Create a `DatabaseProfile` entity to securely store connection strings (with encrypted passwords) linked to a `User` or `Project`.
   - [ ] **Pagination API**: Update `GET /api/v1/migrations/history` to use Spring Data `Pageable` (e.g., `?page=0&size=10`).
   - [ ] **History UI Update**: Implement pagination controls in the `Dashboard` History tab to handle thousands of runs without memory bloat.
+  - [ ] **Documentation**: Update the README.md and create/update a sprint-specific document in Docs/ summarizing the sprint's architectural changes.
 
 - [ ] **Sprint 13: Advanced Engine Configs & Throttling**
   - [ ] **Granular Live Extraction**: Update `POST /connect` DTO and `LiveSchemaExtractor` to accept include/exclude filters (e.g., specific tables, ignore views).
   - [ ] **Custom Type Mappings**: Expose a configuration payload in the `/convert` endpoint allowing users to override default mappings (e.g., `NUMBER` -> `NUMERIC` vs `INTEGER`).
   - [ ] **Rate Limiting**: Implement a basic rate limiter filter (e.g., using Bucket4j) to prevent abuse of the `/connect` and `/upload` endpoints.
   - [ ] **File Size Enforcement**: Add strict multi-part file size limits (e.g., 5MB max) in `application.properties` and handle `MaxUploadSizeExceededException` gracefully.
+  - [ ] **Documentation**: Update the README.md and create/update a sprint-specific document in Docs/ summarizing the sprint's architectural changes.
 
 ## Phase 5: Production Deployment
 
@@ -77,23 +80,28 @@ Mark `[ ]` to `[/]` for in-progress and `[x]` when completed.
   - [ ] **Environment Injection**: Strip cleartext database references in `application.properties` implementing parameterised `${DB_URL}` routing placeholders.
   - [ ] **CORS & Routing**: Reconfigure CORS policies passing dynamic `FRONTEND_URL` identifiers. Update frontend `migrationApi.ts` allowing dynamic `VITE_API_URL` routing mapping separated Vercel frontends to Railway backends.
   - [ ] **CI/CD Deployment Pipelines**: Alter GitHub Actions extending deploy steps specific to `main` branch merging (`railway up` & `vercel --prod`), injecting token secrets automatically scaling the playground live to the web.
+  - [ ] **Documentation**: Update the README.md and create/update a sprint-specific document in Docs/ summarizing the sprint's architectural changes.
 
 ## Phase 6: ETL Pipeline & Live Validation
 
 - [ ] **Sprint 15: Dual-JDBC & Structural Diffing (Phase 6a)**
   - [ ] **Dual Connections**: Architect `@Primary` and secondary Spring `DataSource` beans concurrently bridging PostgreSQL and Oracle runtime properties natively.
   - [ ] **Schema Extraction Diff**: Expand the validation engine to scan both data dictionaries actively checking parity between generated structures and Oracle objects without reading rows.
+  - [ ] **Documentation**: Update the README.md and create/update a sprint-specific document in Docs/ summarizing the sprint's architectural changes.
 
 - [ ] **Sprint 16: Spring Batch ETL MVP (Phase 6b)**
   - [ ] **Job Scaffolding**: Import `spring-boot-starter-batch` and configure the core JobRepository.
   - [ ] **Chunking Execution**: Configure `JdbcCursorItemReader` and `JdbcBatchItemWriter` chunking standard rows (<10,000 limits) between databases targeting a single primitive test table containing no LOBs or dependencies.
+  - [ ] **Documentation**: Update the README.md and create/update a sprint-specific document in Docs/ summarizing the sprint's architectural changes.
 
 - [ ] **Sprint 17: Complex Semantics & Enterprise Scale (Phase 6c)**
   - [ ] **LOB Streaming**: Integrate `oracle.sql.CLOB` reader profiles handling large binary footprints avoiding JVM OutOfMemory crashes.
   - [ ] **Dependency Deferment**: Dynamically inject `SET CONSTRAINTS ALL DEFERRED` within transaction envelopes enabling disjointed Foreign Key pipeline processing.
   - [ ] **Semantics Transformation**: Establish `ItemProcessor` interceptors handling explicit Oracle `''` vs PostgreSQL `NULL` mappings and explicit numerical precisions mappings prior to PostgreSQL write phases.
+  - [ ] **Documentation**: Update the README.md and create/update a sprint-specific document in Docs/ summarizing the sprint's architectural changes.
 
 ## Phase 7: Future Enhancements
 
 - [ ] **Sprint 18: Persistence Layer Robustness**
   - [ ] **Database Column Sizing**: Audit and update all `MigrationRun` JPA entities to explicitly use `@Lob` or `columnDefinition="TEXT"` for `originalSql` and `convertedSql` fields. This ensures the Neon database can support massive enterprise SQL payloads without string-truncation crashes.
+  - [ ] **Documentation**: Update the README.md and create/update a sprint-specific document in Docs/ summarizing the sprint's architectural changes.

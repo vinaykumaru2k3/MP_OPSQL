@@ -2,9 +2,9 @@
 
 **Oracle-to-PostgreSQL Migration Assistant**
 
-> ⚠️ **Internal Tool — Not for Public Distribution**
+> ✅ **Multi-Tenant Architecture Active**
 >
-> SchemaForge is an internal engineering tool. It uses a single shared admin account and does not support public user registration. Do not expose the application to the public internet without first implementing per-user authentication and data isolation.
+> SchemaForge now supports multi-tenant data isolation and per-user JWT authentication. Users can securely register and access their isolated workspaces.
 
 A full-stack enterprise application that automates the detection, analysis, and conversion of Oracle SQL schemas and scripts into PostgreSQL-compatible equivalents. Built with Spring Boot and React, it is designed for database engineers, developers, and architects managing real-world database migrations.
 
@@ -14,15 +14,13 @@ A full-stack enterprise application that automates the detection, analysis, and 
 
 ### Application Login
 
-SchemaForge uses a single shared admin account. All team members use the same credentials.
+SchemaForge uses a secure multi-tenant authentication system with JSON Web Tokens (JWT). 
 
-| Field | Value |
-|---|---|
-| **URL** | `http://localhost:5173` |
-| **Username** | `admin` |
-| **Password** | `secret` |
+1. **Access the application**: `http://localhost:5173/login`
+2. **Register**: Click "Need an account? Create one" to securely register a new user.
+3. **Login**: Authenticate with your new credentials. 
 
-> These are the default fallback values from `AuthController.java`. If your `application.properties` defines `admin.username` and `admin.password` overrides, use those instead.
+*Note: All migration runs and analysis reports are strictly isolated to the user who created them.*
 
 ### Oracle Test Database (Phase 3.5 Local Testing)
 
