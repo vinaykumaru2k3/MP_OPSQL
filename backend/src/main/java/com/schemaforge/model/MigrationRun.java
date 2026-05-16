@@ -46,6 +46,9 @@ public class MigrationRun {
     @Column(name = "raw_sql", columnDefinition = "TEXT")
     private String rawSql;
 
+    @Column(name = "source_type", nullable = false)
+    private String sourceType = "FILE"; // FILE or LIVE_DB
+
     @PrePersist
     protected void onCreate() {
         if (createdAt == null) {

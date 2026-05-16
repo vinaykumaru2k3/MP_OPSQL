@@ -1,0 +1,22 @@
+-- =============================================================================
+-- V1: Sequences — created before tables so triggers can reference them
+-- SchemaForge E-commerce Test Schema
+-- =============================================================================
+
+CREATE SEQUENCE seq_customer_id
+  START WITH 1 INCREMENT BY 1 MINVALUE 1 MAXVALUE 9999999999 NOCACHE NOCYCLE;
+
+CREATE SEQUENCE seq_category_id
+  START WITH 1 INCREMENT BY 1 MINVALUE 1 MAXVALUE 9999999 NOCACHE NOCYCLE;
+
+CREATE SEQUENCE seq_product_id
+  START WITH 1 INCREMENT BY 1 MINVALUE 1 MAXVALUE 9999999999 NOCACHE NOCYCLE;
+
+CREATE SEQUENCE seq_order_id
+  START WITH 1000 INCREMENT BY 1 MINVALUE 1000 MAXVALUE 9999999999 NOCACHE NOCYCLE;
+
+CREATE SEQUENCE seq_order_item_id
+  START WITH 1 INCREMENT BY 1 MINVALUE 1 MAXVALUE 9999999999 NOCACHE NOCYCLE;
+
+CREATE SEQUENCE seq_audit_id
+  START WITH 1 INCREMENT BY 1 MINVALUE 1 MAXVALUE 9999999999999 NOCACHE NOCYCLE;

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -66,6 +67,83 @@ public class MigrationRunService {
         }
     }
 
+    /**
+     * Creates and persists a MigrationRun sourced from a live Oracle DB extraction.
+     * The rawSql is synthesised from the extracted ParsedSchema as a minimal DDL summary.
+     *
+     * @param schemaOwner the Oracle schema/owner name (used as the run's file_name identifier)
+     * @param schema      the fully extracted ParsedSchema
+     * @return the persisted MigrationRun with sourceType = LIVE_DB
+     */
+    public MigrationRun createFromLiveExtraction(String schemaOwner, ParsedSchema schema) {
+        int tableCount = schema.getTables().size();
+        int colCount = schema.getTables().stream()
+                .mapToInt(t -> t.getColumns().size())
+                .sum();
+
+        // Synthesise a minimal DDL summary to store as rawSql so downstream
+        // analysis and conversion pipelines have something to work with.
+        String rawSql = synthesiseDdl(schema);
+
+        MigrationRun run = MigrationRun.builder()
+                .fileName(schemaOwner + " (live)")
+                .status("PARSED")
+                .tableCount(tableCount)
+                .columnCount(colCount)
+                .rawSql(rawSql)
+                .build();
+        run.setSourceType("LIVE_DB");
+
+        run = migrationRunRepository.save(run);
+        log.info("Created LIVE_DB run ID: {} for schema [{}]. Tables={}, Cols={}",
+                run.getId(), schemaOwner, tableCount, colCount);
+        return run;
+    }
+
+    /**
+     * Synthesises a CREATE TABLE DDL string from the in-memory ParsedSchema.
+     * This is used as the rawSql stored in the MigrationRun so that the existing
+     * CompatibilityAnalyzer and SqlConverter pipelines can operate normally.
+     */
+    private String synthesiseDdl(ParsedSchema schema) {
+        StringBuilder sb = new StringBuilder();
+
+        // Sequences first
+        for (com.schemaforge.model.OracleSequence seq : schema.getSequences()) {
+            sb.append("CREATE SEQUENCE ").append(seq.getName())
+                    .append(" START WITH ").append(seq.getMinValue())
+                    .append(" INCREMENT BY ").append(seq.getIncrementBy())
+                    .append(";\n");
+        }
+
+        // Tables
+        for (com.schemaforge.model.Table table : schema.getTables()) {
+            sb.append("CREATE TABLE ").append(table.getName()).append(" (\n");
+            List<com.schemaforge.model.Column> cols = table.getColumns();
+            for (int i = 0; i < cols.size(); i++) {
+                com.schemaforge.model.Column col = cols.get(i);
+                sb.append("  ").append(col.getName()).append(" ").append(col.getType());
+                if (!col.isNullable()) sb.append(" NOT NULL");
+                if (i < cols.size() - 1) sb.append(",");
+                sb.append("\n");
+            }
+            // Append constraints
+            for (com.schemaforge.model.Constraint c : table.getConstraints()) {
+                sb.append("  ,").append(c.getType()).append(" (")
+                        .append(String.join(", ", c.getColumns())).append(")\n");
+            }
+            sb.append(");\n\n");
+        }
+
+        // Views
+        for (com.schemaforge.model.OracleView view : schema.getViews()) {
+            sb.append("CREATE OR REPLACE VIEW ").append(view.getName()).append(" AS\n");
+            sb.append(view.getDefinition()).append(";\n\n");
+        }
+
+        return sb.toString();
+    }
+
     public MigrationRun getMigrationRun(UUID runId) {
         return migrationRunRepository.findById(runId)
                 .orElseThrow(() -> new IllegalArgumentException("Migration run not found for ID: " + runId));
@@ -78,3 +156,4 @@ public class MigrationRunService {
         return migrationRunRepository.findByFileNameOrderByCreatedAtDesc(fileName);
     }
 }
+

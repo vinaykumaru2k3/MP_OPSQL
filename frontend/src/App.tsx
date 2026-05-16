@@ -4,6 +4,7 @@ import Landing from './pages/Landing';
 import Login from './pages/Login';
 import UploadPage from './pages/Upload';
 import Dashboard from './pages/Dashboard';
+import LiveDbPage from './pages/LiveDb';
 
 // A simple PrivateRoute wrapper
 const PrivateRoute = ({ children }: { children: JSX.Element }) => {
@@ -23,6 +24,9 @@ function App() {
           } />
           <Route path="dashboard" element={
             <PrivateRoute><Dashboard /></PrivateRoute>
+          } />
+          <Route path="live-db" element={
+            <PrivateRoute><LiveDbPage /></PrivateRoute>
           } />
         </Route>
       </Routes>

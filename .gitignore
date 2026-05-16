@@ -30,3 +30,8 @@ application.properties
 # Node
 node_modules/
 dist/
+frontend/.vite/
+
+# Temp scripts
+rename.js
+rename.py
